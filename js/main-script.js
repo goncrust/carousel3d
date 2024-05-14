@@ -4,9 +4,23 @@ import { VRButton } from 'three/addons/webxr/VRButton.js';
 import * as Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
+import { bindEvents, pressedKeys } from "./events.js";
+import {
+    createCameras,
+    lateralCamera,
+    topCamera,
+    frontalCamera,
+    broadPCamera,
+    broadOCamera,
+} from "./cameras.js";
+
+export { scene };
+
 //////////////////////
 /* GLOBAL VARIABLES */
 //////////////////////
+let scene, renderer;
+let currCamera;
 
 
 /////////////////////
@@ -14,7 +28,7 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 /////////////////////
 function createScene(){
     'use strict';
-
+    scene = new THREE.Scene();
 }
 
 //////////////////////
@@ -59,7 +73,7 @@ function update(){
 /////////////
 function render() {
     'use strict';
-
+    renderer.render(scene, currCamera);
 }
 
 ////////////////////////////////
@@ -67,7 +81,17 @@ function render() {
 ////////////////////////////////
 function init() {
     'use strict';
+    renderer = new THREE.WebGLRenderer({
+        antialias: true,
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
+    createCameras();
+    currCamera = broadPCamera;
+
+    bindEvents();
+    createScene();
 }
 
 /////////////////////
@@ -75,7 +99,9 @@ function init() {
 /////////////////////
 function animate() {
     'use strict';
-
+    update();
+    render();
+    requestAnimationFrame(animate);
 }
 
 ////////////////////////////

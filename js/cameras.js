@@ -1,11 +1,9 @@
 import * as THREE from "three";
-import { claw } from "./crane.js";
 export { createCameras };
 export {
     lateralCamera,
     topCamera,
     frontalCamera,
-    clawCamera,
     broadPCamera,
     broadOCamera,
 };
@@ -13,7 +11,6 @@ export {
 let lateralCamera,
     topCamera,
     frontalCamera,
-    clawCamera,
     broadPCamera,
     broadOCamera;
 
@@ -24,7 +21,6 @@ function createCameras() {
     createLateralCamera();
     createFrontalCamera();
     createTopCamera();
-    createClawCamera();
     createBroadPerpectiveCamera();
     createBroadOrthographicCamera();
 }
@@ -75,17 +71,6 @@ function createTopCamera() {
     );
     topCamera.position.set(0, 70, 0);
     topCamera.lookAt(0, 0, 0);
-}
-
-function createClawCamera() {
-    "use strict";
-    clawCamera = new THREE.PerspectiveCamera(
-        70,
-        window.innerWidth / window.innerHeight,
-        1,
-        1000,
-    );
-    claw.add(clawCamera);
 }
 
 function createBroadPerpectiveCamera() {
