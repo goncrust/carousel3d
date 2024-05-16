@@ -226,7 +226,13 @@ function init() {
         antialias: true,
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.xr.enabled = true;
+    renderer.setAnimationLoop(() => {
+        update();
+        render();
+    });
     document.body.appendChild(renderer.domElement);
+    document.body.appendChild(VRButton.createButton(renderer));
 
     bindEvents();
     createScene();
