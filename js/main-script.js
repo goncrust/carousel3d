@@ -15,7 +15,7 @@ let carousel, carouselAngle;
 let rings, ringHeights, ringSpeeds;
 
 const loader = new THREE.TextureLoader();
-const texture = loader.load("images/AnOpticalPoem.png");
+const texture = loader.load("textures/AnOpticalPoem.png");
 
 const MATERIALS = {
     grey: new THREE.MeshLambertMaterial({ color: 0x727272 }),
