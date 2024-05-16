@@ -55,7 +55,7 @@ const MATERIALS = {
 };
 
 const DIMENSIONS = {
-    hBase: 5,
+    hBase: 20,
     rBase: 5,
     hRing: 2,
     rInnerRing: 10,
@@ -67,8 +67,8 @@ const KEYS = [1, 2, 3];
 
 const clock = new THREE.Clock();
 
-const MAX_RING_HEIGHT = 20,
-      MIN_RING_HEIGHT = 0;
+const MAX_RING_HEIGHT = DIMENSIONS.hBase,
+      MIN_RING_HEIGHT = DIMENSIONS.hRing / 2;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -184,9 +184,9 @@ function createCarousel() {
     ringSpeeds = Array(3).fill(0);
 
     carousel = new THREE.Object3D();
-    addBase(carousel, 0, 0, 0);
+    addBase(carousel, 0, DIMENSIONS.hBase / 2, 0);
 
-    const startingPoint = [0, 0, 0];
+    const startingPoint = [0, DIMENSIONS.hRing / 2, 0];
 
     createRing(0, startingPoint, DIMENSIONS.rBase, DIMENSIONS.rInnerRing, MATERIALS.grey);
     carousel.add(rings[0]);
