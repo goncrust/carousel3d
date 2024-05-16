@@ -4,18 +4,6 @@ import { VRButton } from 'three/addons/webxr/VRButton.js';
 import * as Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
-import { bindEvents, pressedKeys } from "./events.js";
-import {
-    createCameras,
-    lateralCamera,
-    topCamera,
-    frontalCamera,
-    broadPCamera,
-    broadOCamera,
-} from "./cameras.js";
-
-export { scene };
-
 //////////////////////
 /* GLOBAL VARIABLES */
 //////////////////////
@@ -44,36 +32,12 @@ let pressedKeys = {
     f: false,
 };
 
-////////////////////////////
-/*        EVENTS          */
-////////////////////////////
-function bindEvents() {
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
-}
-
-///////////////////////
-/* KEY DOWN CALLBACK */
-///////////////////////
-function onKeyDown(e) {
-    "use strict";
-    if (!pressedKeys.hasOwnProperty(e.key)) {
-        return;
-    }
-
-    pressedKeys[e.key] = isFinite(e.key) ? !e.repeat : true;
-}
-
-///////////////////////
-/* KEY UP CALLBACK */
-///////////////////////
-function onKeyUp(e) {
-    "use strict";
-    if (!pressedKeys.hasOwnProperty(e.key)) {
-        return;
-    }
-
-    pressedKeys[e.key] = false;
+/////////////////////
+/* CREATE SCENE(S) */
+/////////////////////
+function createScene(){
+    'use strict';
+    scene = new THREE.Scene();
 }
 
 //////////////////////
@@ -163,18 +127,6 @@ function createBroadOrthographicCamera() {
     broadOCamera.lookAt(0, 25, 0);
 }
 
-/////////////////////
-/* CREATE SCENE(S) */
-/////////////////////
-function createScene(){
-    'use strict';
-    scene = new THREE.Scene();
-}
-
-//////////////////////
-/* CREATE CAMERA(S) */
-//////////////////////
-
 
 /////////////////////
 /* CREATE LIGHT(S) */
@@ -245,6 +197,14 @@ function animate() {
 }
 
 ////////////////////////////
+/*        EVENTS          */
+////////////////////////////
+function bindEvents() {
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+}
+
+////////////////////////////
 /* RESIZE WINDOW CALLBACK */
 ////////////////////////////
 function onResize() {
@@ -256,15 +216,24 @@ function onResize() {
 /* KEY DOWN CALLBACK */
 ///////////////////////
 function onKeyDown(e) {
-    'use strict';
+    "use strict";
+    if (!pressedKeys.hasOwnProperty(e.key)) {
+        return;
+    }
 
+    pressedKeys[e.key] = isFinite(e.key) ? !e.repeat : true;
 }
 
 ///////////////////////
 /* KEY UP CALLBACK */
 ///////////////////////
-function onKeyUp(e){
-    'use strict';
+function onKeyUp(e) {
+    "use strict";
+    if (!pressedKeys.hasOwnProperty(e.key)) {
+        return;
+    }
+
+    pressedKeys[e.key] = false;
 }
 
 init();
