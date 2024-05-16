@@ -7,7 +7,8 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 //////////////////////
 /* GLOBAL VARIABLES */
 //////////////////////
-let scene, renderer, camera, light;
+let scene, renderer, camera
+let directionalLight, ambientLight;
 let mesh, geometry;
 
 let carousel, carouselAngle;
@@ -50,7 +51,7 @@ function createScene(){
     scene = new THREE.Scene();
 
     addCamera();
-    addLight();
+    addLights();
     createSkyDome();
     createCarousel();
 }
@@ -72,11 +73,14 @@ function addCamera() {
 /////////////////////
 /* CREATE LIGHT(S) */
 /////////////////////
-function addLight() {
-    light = new THREE.DirectionalLight(0xffffff, 5);
-    light.position.x = 5;
-    light.position.z = 5;
-    scene.add(light);
+function addLights() {
+    directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.x = 5;
+    directionalLight.position.z = 5;
+    scene.add(directionalLight);
+
+    ambientLight = new THREE.AmbientLight(0xfcb73f);
+    scene.add(ambientLight);
 }
 
 ////////////////////////
