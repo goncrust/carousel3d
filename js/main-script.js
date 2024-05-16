@@ -263,10 +263,20 @@ function onResize() {
 ///////////////////////
 function onKeyDown(e) {
     "use strict";
-    if (isFinite(e.key) && !e.repeat) {
+    if (e.repeat) return;
+
+    if (isFinite(e.key)) {
         try {
             ringSpeeds[e.key - 1] = 20;
         } catch(error) {}
+    } else {
+        switch(e.key) {
+            case 'd':
+                directionalLight.intensity = directionalLight.intensity ? 0 : 1;
+                break;
+            default:
+                break;
+        }
     }
 }
 
