@@ -8,29 +8,67 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 /* GLOBAL VARIABLES */
 //////////////////////
 let scene, renderer;
+let mesh, geometry;
+
 let currCamera,
     lateralCamera,
     topCamera,
     frontalCamera,
     broadPCamera,
     broadOCamera;
-let pressedKeys = {
-    1: false,
-    2: false,
-    3: false,
-    4: false,
-    5: false,
-    6: false,
-    7: false,
-    q: false,
-    a: false,
-    w: false,
-    s: false,
-    e: false,
-    d: false,
-    r: false,
-    f: false,
+
+let carousel, base;
+let rings, ringHeights, ringSpeeds;
+
+const MATERIALS = {
+    grey: new THREE.MeshBasicMaterial({ color: 0x727272, wireframe: false }),
+    darkOrange: new THREE.MeshBasicMaterial({
+        color: 0xfc6d00,
+        wireframe: false,
+    }),
+    lightOrange: new THREE.MeshBasicMaterial({
+        color: 0xfcc100,
+        wireframe: false,
+    }),
+    lightBlue: new THREE.MeshBasicMaterial({
+        color: 0x85e6fc,
+        wireframe: false,
+    }),
+    red: new THREE.MeshBasicMaterial({
+        color: 0xa52a2a,
+        wireframe: false,
+    }),
+    coffeeBrown: new THREE.MeshBasicMaterial({
+        color: 0x6f4e37,
+        wireframe: false,
+    }),
+    pink: new THREE.MeshBasicMaterial({
+        color: 0xff1493,
+        wireframe: false,
+        side: THREE.DoubleSide,
+    }),
+    purple: new THREE.MeshBasicMaterial({
+        color: 0xb600ff,
+        wireframe: false,
+        side: THREE.DoubleSide,
+    }),
 };
+
+const DIMENSIONS = {
+    hBase: 5,
+    rBase: 5,
+    hRing: 2,
+    rInnerRing: 10,
+    rMiddleRing: 15,
+    rOutterRing: 20,
+};
+
+const KEYS = [1, 2, 3];
+
+const clock = new THREE.Clock();
+
+const MAX_RING_HEIGHT = 20,
+      MIN_RING_HEIGHT = 0;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -38,6 +76,10 @@ let pressedKeys = {
 function createScene(){
     'use strict';
     scene = new THREE.Scene();
+
+    scene.background = new THREE.Color(0x9fe2bf);
+
+    createCarousel();
 }
 
 //////////////////////
@@ -135,21 +177,77 @@ function createBroadOrthographicCamera() {
 ////////////////////////
 /* CREATE OBJECT3D(S) */
 ////////////////////////
+function createCarousel() {
+    "use strict";
+    rings = Array(3);
+    ringHeights = Array(3).fill(0);
+    ringSpeeds = Array(3).fill(0);
 
-//////////////////////
-/* CHECK COLLISIONS */
-//////////////////////
-function checkCollisions(){
-    'use strict';
+    carousel = new THREE.Object3D();
+    addBase(carousel, 0, 0, 0);
 
+    const startingPoint = [0, 0, 0];
+
+    createRing(0, startingPoint, DIMENSIONS.rBase, DIMENSIONS.rInnerRing, MATERIALS.grey);
+    carousel.add(rings[0]);
+
+    createRing(1, startingPoint, DIMENSIONS.rInnerRing, DIMENSIONS.rMiddleRing, MATERIALS.lightBlue);
+    carousel.add(rings[1]);
+
+    createRing(2, startingPoint, DIMENSIONS.rMiddleRing, DIMENSIONS.rOutterRing, MATERIALS.red);
+    carousel.add(rings[2]);
+
+    scene.add(carousel);
 }
 
-///////////////////////
-/* HANDLE COLLISIONS */
-///////////////////////
-function handleCollisions(){
-    'use strict';
+function addBase(obj, x, y, z) {
+    "use strict";
 
+    geometry = new THREE.CylinderGeometry(
+        DIMENSIONS.rBase,
+        DIMENSIONS.rBase,
+        DIMENSIONS.hBase,
+    );
+    mesh = new THREE.Mesh(geometry, MATERIALS.lightOrange);
+
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+}
+
+function createRing(i, coordinates, innerRadius, outterRadius, material) {
+    "use strict";
+
+    rings[i] = new THREE.Object3D();
+
+    const innerCircle = new THREE.Path();
+    innerCircle.moveTo(0, 0);
+    innerCircle.ellipse(
+        0, 0,
+        innerRadius,
+        innerRadius,
+        0, Math.PI * 2,
+    );
+
+    const ring = new THREE.Shape();
+    ring.moveTo(0, 0);
+    ring.ellipse(
+        0, 0,
+        outterRadius,
+        outterRadius,
+        0, Math.PI * 2,
+    );
+    ring.holes = [innerCircle];
+
+    const extrudeSettings = {
+        depth: DIMENSIONS.hRing,
+    };
+
+    geometry = new THREE.ExtrudeGeometry(ring, extrudeSettings);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.rotateX(Math.PI / 2);
+
+    rings[i].add(mesh);
+    rings[i].position.set(...coordinates);
 }
 
 ////////////
@@ -157,7 +255,18 @@ function handleCollisions(){
 ////////////
 function update(){
     'use strict';
+    const delta = clock.getDelta();
+    for (let i = 0; i < rings.length; i++) {
+        ringHeights[i] += ringSpeeds[i] * delta;
+        ringHeights[i] = Math.max(ringHeights[i], MIN_RING_HEIGHT);
+        ringHeights[i] = Math.min(ringHeights[i], MAX_RING_HEIGHT);
 
+        rings[i].position.y = ringHeights[i];
+
+        if (ringHeights[i] == MIN_RING_HEIGHT || ringHeights[i] == MAX_RING_HEIGHT) {
+            ringSpeeds[i] = -ringSpeeds[i];
+        }
+    }
 }
 
 /////////////
@@ -217,11 +326,11 @@ function onResize() {
 ///////////////////////
 function onKeyDown(e) {
     "use strict";
-    if (!pressedKeys.hasOwnProperty(e.key)) {
-        return;
+    if (isFinite(e.key) && !e.repeat) {
+        try {
+            ringSpeeds[e.key - 1] = 20;
+        } catch(error) {}
     }
-
-    pressedKeys[e.key] = isFinite(e.key) ? !e.repeat : true;
 }
 
 ///////////////////////
@@ -229,11 +338,11 @@ function onKeyDown(e) {
 ///////////////////////
 function onKeyUp(e) {
     "use strict";
-    if (!pressedKeys.hasOwnProperty(e.key)) {
-        return;
+    if (isFinite(e.key)) {
+        try {
+            ringSpeeds[e.key - 1] = 0;
+        } catch(error) {}
     }
-
-    pressedKeys[e.key] = false;
 }
 
 init();
