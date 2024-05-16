@@ -7,51 +7,22 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 //////////////////////
 /* GLOBAL VARIABLES */
 //////////////////////
-let scene, renderer;
+let scene, renderer, camera, light;
 let mesh, geometry;
-
-let currCamera,
-    lateralCamera,
-    topCamera,
-    frontalCamera,
-    broadPCamera,
-    broadOCamera;
 
 let carousel, carouselAngle;
 let rings, ringHeights, ringSpeeds;
 
+const loader = new THREE.TextureLoader();
+const texture = loader.load("images/AnOpticalPoem.png");
+
 const MATERIALS = {
-    grey: new THREE.MeshBasicMaterial({ color: 0x727272, wireframe: false }),
-    darkOrange: new THREE.MeshBasicMaterial({
-        color: 0xfc6d00,
-        wireframe: false,
-    }),
-    lightOrange: new THREE.MeshBasicMaterial({
-        color: 0xfcc100,
-        wireframe: false,
-    }),
-    lightBlue: new THREE.MeshBasicMaterial({
-        color: 0x85e6fc,
-        wireframe: false,
-    }),
-    red: new THREE.MeshBasicMaterial({
-        color: 0xa52a2a,
-        wireframe: false,
-    }),
-    coffeeBrown: new THREE.MeshBasicMaterial({
-        color: 0x6f4e37,
-        wireframe: false,
-    }),
-    pink: new THREE.MeshBasicMaterial({
-        color: 0xff1493,
-        wireframe: false,
-        side: THREE.DoubleSide,
-    }),
-    purple: new THREE.MeshBasicMaterial({
-        color: 0xb600ff,
-        wireframe: false,
-        side: THREE.DoubleSide,
-    }),
+    grey: new THREE.MeshLambertMaterial({ color: 0x727272 }),
+    darkOrange: new THREE.MeshLambertMaterial({ color: 0xfc6d00 }),
+    lightOrange: new THREE.MeshLambertMaterial({ color: 0xfcc100 }),
+    lightBlue: new THREE.MeshLambertMaterial({ color: 0x85e6fc }),
+    red: new THREE.MeshLambertMaterial({ color: 0xa52a2a }),
+    skyDome: new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide }),
 };
 
 const DIMENSIONS = {
@@ -78,106 +49,46 @@ function createScene(){
     'use strict';
     scene = new THREE.Scene();
 
-    scene.background = new THREE.Color(0x9fe2bf);
-
+    addCamera();
+    addLight();
+    createSkyDome();
     createCarousel();
 }
 
 //////////////////////
 /* CREATE CAMERA(S) */
 //////////////////////
-function createCameras() {
-    createLateralCamera();
-    createFrontalCamera();
-    createTopCamera();
-    createBroadPerpectiveCamera();
-    createBroadOrthographicCamera();
-}
-
-function createLateralCamera() {
-    "use strict";
-    let aspectRatio = window.innerWidth / window.innerHeight;
-    let viewSize = 70;
-    lateralCamera = new THREE.OrthographicCamera(
-        (aspectRatio * viewSize) / -2,
-        (aspectRatio * viewSize) / 2,
-        viewSize / 2,
-        viewSize / -2,
-        1,
-        1000,
-    );
-    lateralCamera.position.set(0, 30, 70);
-    lateralCamera.lookAt(0, 30, 0);
-}
-
-function createFrontalCamera() {
-    "use strict";
-    let aspectRatio = window.innerWidth / window.innerHeight;
-    let viewSize = 70;
-    frontalCamera = new THREE.OrthographicCamera(
-        (aspectRatio * viewSize) / -2,
-        (aspectRatio * viewSize) / 2,
-        viewSize / 2,
-        viewSize / -2,
-        1,
-        1000,
-    );
-    frontalCamera.position.set(100, 30, 0);
-    frontalCamera.lookAt(0, 30, 0);
-}
-
-function createTopCamera() {
-    "use strict";
-    let aspectRatio = window.innerWidth / window.innerHeight;
-    let viewSize = 70;
-    topCamera = new THREE.OrthographicCamera(
-        (aspectRatio * viewSize) / -2,
-        (aspectRatio * viewSize) / 2,
-        viewSize / 2,
-        viewSize / -2,
-        1,
-        1000,
-    );
-    topCamera.position.set(0, 70, 0);
-    topCamera.lookAt(0, 0, 0);
-}
-
-function createBroadPerpectiveCamera() {
-    "use strict";
-    broadPCamera = new THREE.PerspectiveCamera(
+function addCamera() {
+    camera = new THREE.PerspectiveCamera(
         70,
         window.innerWidth / window.innerHeight,
         1,
         1000,
     );
-    broadPCamera.position.set(40, 40, 40);
-    broadPCamera.lookAt(0, 25, 0);
+    camera.position.set(40, 40, 40);
+    camera.lookAt(0, 25, 0);
 }
-
-function createBroadOrthographicCamera() {
-    "use strict";
-    let aspectRatio = window.innerWidth / window.innerHeight;
-    let viewSize = 70;
-    broadOCamera = new THREE.OrthographicCamera(
-        (aspectRatio * viewSize) / -2,
-        (aspectRatio * viewSize) / 2,
-        viewSize / 2,
-        viewSize / -2,
-        1,
-        1000,
-    );
-    broadOCamera.position.set(40, 40, 40);
-    broadOCamera.lookAt(0, 25, 0);
-}
-
 
 /////////////////////
 /* CREATE LIGHT(S) */
 /////////////////////
+function addLight() {
+    light = new THREE.DirectionalLight(0xffffff, 5);
+    light.position.x = 5;
+    light.position.z = 5;
+    scene.add(light);
+}
 
 ////////////////////////
 /* CREATE OBJECT3D(S) */
 ////////////////////////
+function createSkyDome() {
+    geometry = new THREE.SphereGeometry(70);
+    mesh = new THREE.Mesh(geometry, MATERIALS.skyDome);
+    scene.add(mesh);
+
+}
+
 function createCarousel() {
     "use strict";
     rings = Array(3);
@@ -299,7 +210,7 @@ function update(){
 /////////////
 function render() {
     'use strict';
-    renderer.render(scene, currCamera);
+    renderer.render(scene, camera);
 }
 
 ////////////////////////////////
@@ -312,9 +223,6 @@ function init() {
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
-
-    createCameras();
-    currCamera = broadPCamera;
 
     bindEvents();
     createScene();
