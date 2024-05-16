@@ -17,7 +17,7 @@ let currCamera,
     broadPCamera,
     broadOCamera;
 
-let carousel, base;
+let carousel, carouselAngle;
 let rings, ringHeights, ringSpeeds;
 
 const MATERIALS = {
@@ -69,6 +69,9 @@ const clock = new THREE.Clock();
 
 const MAX_RING_HEIGHT = DIMENSIONS.hBase,
       MIN_RING_HEIGHT = DIMENSIONS.hRing / 2;
+
+const Y_AXIS = new THREE.Vector3(0, 1, 0);
+const CAROUSEL_SPEED = 1;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -182,6 +185,7 @@ function createCarousel() {
     rings = Array(3);
     ringHeights = Array(3).fill(0);
     ringSpeeds = Array(3).fill(0);
+    carouselAngle = 0;
 
     carousel = new THREE.Object3D();
     addBase(carousel, 0, DIMENSIONS.hBase / 2, 0);
@@ -195,6 +199,12 @@ function createCarousel() {
     carousel.add(rings[1]);
 
     createRing(2, startingPoint, DIMENSIONS.rMiddleRing, DIMENSIONS.rOutterRing, MATERIALS.red);
+    addBox(
+        rings[2],
+        DIMENSIONS.rMiddleRing - (2 ** (1/2)) / 2,
+        1 + DIMENSIONS.hRing / 2,
+        DIMENSIONS.rMiddleRing - (2 ** (1/2)) / 2,
+    );
     carousel.add(rings[2]);
 
     scene.add(carousel);
@@ -213,6 +223,17 @@ function addBase(obj, x, y, z) {
     mesh.position.set(x, y, z);
     obj.add(mesh);
 }
+
+function addBox(obj, x, y, z) {
+    "use strict";
+
+    geometry = new THREE.BoxGeometry(2, 2, 2);
+    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+}
+
 
 function createRing(i, coordinates, innerRadius, outterRadius, material) {
     "use strict";
@@ -256,6 +277,7 @@ function createRing(i, coordinates, innerRadius, outterRadius, material) {
 function update(){
     'use strict';
     const delta = clock.getDelta();
+
     for (let i = 0; i < rings.length; i++) {
         ringHeights[i] += ringSpeeds[i] * delta;
         ringHeights[i] = Math.max(ringHeights[i], MIN_RING_HEIGHT);
@@ -267,6 +289,11 @@ function update(){
             ringSpeeds[i] = -ringSpeeds[i];
         }
     }
+
+    carouselAngle += CAROUSEL_SPEED * delta;
+    if (carouselAngle >= 2 * Math.PI) carouselAngle = 0;
+
+    carousel.setRotationFromAxisAngle(Y_AXIS, carouselAngle);
 }
 
 /////////////
