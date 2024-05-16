@@ -63,8 +63,6 @@ const DIMENSIONS = {
     rOutterRing: 20,
 };
 
-const KEYS = [1, 2, 3];
-
 const clock = new THREE.Clock();
 
 const MAX_RING_HEIGHT = DIMENSIONS.hBase,
