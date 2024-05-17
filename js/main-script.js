@@ -13,6 +13,7 @@ let mesh, geometry;
 
 let carousel, carouselAngle;
 let rings, ringHeights, ringSpeeds;
+let shapes, shapesAngle;
 
 const loader = new THREE.TextureLoader();
 const texture = loader.load("textures/AnOpticalPoem.png");
@@ -40,8 +41,12 @@ const clock = new THREE.Clock();
 const MAX_RING_HEIGHT = DIMENSIONS.hBase,
       MIN_RING_HEIGHT = DIMENSIONS.hRing / 2;
 
+const X_AXIS = new THREE.Vector3(1, 0, 0);
 const Y_AXIS = new THREE.Vector3(0, 1, 0);
+const Z_AXIS = new THREE.Vector3(0, 0, 1);
+
 const CAROUSEL_SPEED = 1;
+const SHAPES_SPEED = 2;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -98,6 +103,8 @@ function createCarousel() {
     rings = Array(3);
     ringHeights = Array(3).fill(0);
     ringSpeeds = Array(3).fill(0);
+    shapes = [];
+    shapesAngle = 0;
     carouselAngle = 0;
 
     carousel = new THREE.Object3D();
@@ -106,18 +113,15 @@ function createCarousel() {
     const startingPoint = [0, DIMENSIONS.hRing / 2, 0];
 
     createRing(0, startingPoint, DIMENSIONS.rBase, DIMENSIONS.rInnerRing, MATERIALS.grey);
+    addShapes(rings[0], 1, X_AXIS, DIMENSIONS.rBase, DIMENSIONS.rInnerRing);
     carousel.add(rings[0]);
 
     createRing(1, startingPoint, DIMENSIONS.rInnerRing, DIMENSIONS.rMiddleRing, MATERIALS.lightBlue);
+    addShapes(rings[1], 2, Y_AXIS, DIMENSIONS.rInnerRing, DIMENSIONS.rMiddleRing);
     carousel.add(rings[1]);
 
     createRing(2, startingPoint, DIMENSIONS.rMiddleRing, DIMENSIONS.rOutterRing, MATERIALS.red);
-    addBox(
-        rings[2],
-        DIMENSIONS.rMiddleRing - (2 ** (1/2)) / 2,
-        1 + DIMENSIONS.hRing / 2,
-        DIMENSIONS.rMiddleRing - (2 ** (1/2)) / 2,
-    );
+    addShapes(rings[2], 3, Z_AXIS, DIMENSIONS.rMiddleRing, DIMENSIONS.rOutterRing);
     carousel.add(rings[2]);
 
     scene.add(carousel);
@@ -137,16 +141,66 @@ function addBase(obj, x, y, z) {
     obj.add(mesh);
 }
 
-function addBox(obj, x, y, z) {
+function addShapes(obj, size, axis, innerRadius, outterRadius) {
+    "use strict";
+    const midRing = ((outterRadius - innerRadius) / 2) + innerRadius;
+
+    addCylinder(obj, size, axis, 0, size * (3/2), midRing);
+    addPyramidCylinder(obj, size, axis, midRing, size * (3/2), 0);
+    addEllipsisCylinder(obj, size, axis, midRing, size * (3/2), midRing);
+}
+
+function addCylinder(obj, size, axis, x, y, z) {
     "use strict";
 
-    geometry = new THREE.BoxGeometry(2, 2, 2);
+    geometry = new THREE.CylinderGeometry(size, size, size*2);
     mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
+    shapes.push({shape: mesh, axis: axis});
 }
 
+function addPyramidCylinder(obj, size, axis, x, y, z) {
+    "use strict";
+
+    geometry = new THREE.CylinderGeometry(size*0.5, size, size*2);
+    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+    shapes.push({shape: mesh, axis: axis});
+}
+
+function addEllipsisCylinder(obj, size, axis, x, y, z) {
+    const cylinder = new THREE.Object3D();
+
+    const base = drawBase(size);
+
+    const extrudeSettings = {
+        depth: 2 * size,
+    };
+
+    geometry = new THREE.ExtrudeGeometry(base, extrudeSettings);
+    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+    mesh.rotateX(Math.PI / 2);
+    cylinder.add(mesh);
+
+    cylinder.position.set(x - 2*size, y + size, z - 2*size);
+    obj.add(cylinder);
+    shapes.push({shape: cylinder, axis: axis});
+}
+
+function drawBase(size) {
+    const base = new THREE.Shape();
+    base.moveTo(0, 0);
+    base.ellipse(
+        0, 0,
+        size * (2/3), size * (3/2),
+        0, Math.PI * 2,
+    );
+    return base;
+}
 
 function createRing(i, coordinates, innerRadius, outterRadius, material) {
     "use strict";
@@ -205,8 +259,13 @@ function update(){
 
     carouselAngle += CAROUSEL_SPEED * delta;
     if (carouselAngle >= 2 * Math.PI) carouselAngle = 0;
-
     carousel.setRotationFromAxisAngle(Y_AXIS, carouselAngle);
+
+    shapesAngle += SHAPES_SPEED * delta;
+    if (shapesAngle >= 2 * Math.PI) shapesAngle = 0;
+    for (let i = 0; i < shapes.length; i++) {
+        shapes[i].shape.setRotationFromAxisAngle(shapes[i].axis, shapesAngle);
+    }
 }
 
 /////////////
