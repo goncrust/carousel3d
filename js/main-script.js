@@ -147,7 +147,8 @@ function addShapes(obj, size, axis, innerRadius, outterRadius) {
 
     addCylinder(obj, size, axis, 0, size * (3/2), midRing);
     addPyramidCylinder(obj, size, axis, midRing, size * (3/2), 0);
-    addEllipsisCylinder(obj, size, axis, midRing, size * (3/2), midRing);
+    addEllipsisCylinder(obj, size, axis, midRing - 2 * size, size, midRing - 2 * size);
+    addInclinedEllipsisCylinder(obj, size, axis, -midRing + 2 * size, size, midRing - 2 * size);
 }
 
 function addCylinder(obj, size, axis, x, y, z) {
@@ -173,22 +174,52 @@ function addPyramidCylinder(obj, size, axis, x, y, z) {
 }
 
 function addEllipsisCylinder(obj, size, axis, x, y, z) {
-    const cylinder = new THREE.Object3D();
-
     const base = drawBase(size);
 
+    const v1 = new THREE.Vector3(0, 0, 0);
+    const v2 = new THREE.Vector3(0, 2 * size, 0);
+    const path = new THREE.LineCurve3(v1, v2)
+
     const extrudeSettings = {
-        depth: 2 * size,
+        extrudePath: path,
     };
 
     geometry = new THREE.ExtrudeGeometry(base, extrudeSettings);
     mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
-    mesh.rotateX(Math.PI / 2);
-    cylinder.add(mesh);
 
-    cylinder.position.set(x - 2*size, y + size, z - 2*size);
-    obj.add(cylinder);
-    shapes.push({shape: cylinder, axis: axis});
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+    shapes.push({shape: mesh, axis: axis});
+}
+
+function addInclinedEllipsisCylinder(obj, size, axis, x, y, z) {
+    const base = drawBase(size);
+    let v1, v2;
+    let path = new THREE.CurvePath();
+
+    v1 = new THREE.Vector3(0, 0, 0);
+    v2 = new THREE.Vector3(0, 1, 0);
+    path.add(new THREE.LineCurve3(v1, v2));
+
+    v1 = new THREE.Vector3(0, 1, 0);
+    v2 = new THREE.Vector3(size/2, size * 2 - 1, size/2);
+    path.add(new THREE.LineCurve3(v1, v2));
+
+    v1 = new THREE.Vector3(size/2, size * 2 - 1, size/2);
+    v2 = new THREE.Vector3(size/2, size * 2, size/2);
+    path.add(new THREE.LineCurve3(v1, v2));
+
+    const extrudeSettings = {
+        extrudePath: path,
+    };
+
+    geometry = new THREE.ExtrudeGeometry(base, extrudeSettings);
+    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+    shapes.push({shape: mesh, axis: axis});
+    console.log(mesh);
 }
 
 function drawBase(size) {
