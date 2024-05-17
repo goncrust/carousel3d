@@ -31,8 +31,8 @@ const DIMENSIONS = {
     rBase: 5,
     hRing: 2,
     rInnerRing: 10,
-    rMiddleRing: 15,
-    rOutterRing: 20,
+    rMiddleRing: 20,
+    rOutterRing: 30,
 };
 
 const clock = new THREE.Clock();
@@ -66,7 +66,7 @@ function addCamera() {
         1,
         1000,
     );
-    camera.position.set(40, 40, 40);
+    camera.position.set(60, 60, 60);
     camera.lookAt(0, 25, 0);
 }
 
