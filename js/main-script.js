@@ -259,6 +259,7 @@ function createRing(i, coordinates, innerRadius, outterRadius, material) {
 
     const extrudeSettings = {
         depth: DIMENSIONS.hRing,
+        curveSegments: 50,
     };
 
     geometry = new THREE.ExtrudeGeometry(ring, extrudeSettings);
