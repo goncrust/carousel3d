@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
+import { ParametricGeometries } from 'three/addons/geometries/ParametricGeometries.js';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 import * as Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
@@ -20,7 +22,7 @@ const texture = loader.load("textures/AnOpticalPoem.png");
 
 const MATERIALS = {
     grey: new THREE.MeshLambertMaterial({ color: 0x727272 }),
-    darkOrange: new THREE.MeshLambertMaterial({ color: 0xfc6d00 }),
+    darkOrange: new THREE.MeshLambertMaterial({ color: 0xfc6d00, side: THREE.DoubleSide }),
     lightOrange: new THREE.MeshLambertMaterial({ color: 0xfcc100 }),
     lightBlue: new THREE.MeshLambertMaterial({ color: 0x85e6fc }),
     red: new THREE.MeshLambertMaterial({ color: 0xa52a2a }),
@@ -145,92 +147,54 @@ function addShapes(obj, size, axis, innerRadius, outterRadius) {
     "use strict";
     const midRing = ((outterRadius - innerRadius) / 2) + innerRadius;
 
-    addCylinder(obj, size, axis, 0, size * (3/2), midRing);
-    addPyramidCylinder(obj, size, axis, midRing, size * (3/2), 0);
-    addEllipsisCylinder(obj, size, axis, midRing - 2 * size, size, midRing - 2 * size);
-    addInclinedEllipsisCylinder(obj, size, axis, -midRing + 2 * size, size, midRing - 2 * size);
+    addTorus(obj, size, axis, 0, size * 2, midRing);
+    addCylinder(obj, size, axis, midRing, size * 2, 0);
+}
+
+function addTorus(obj, size, axis, x, y, z) {
+    "use strict";
+    let equation = (u, v, vector) => {
+        let theta = (u * 2 * Math.PI);
+        let phi = (v * 2 * Math.PI);
+        let R = size;
+        let r = size/2;
+
+        let x = (R + r * Math.cos(theta)) * Math.cos(phi);
+        let y = (R + r * Math.cos(theta)) * Math.sin(phi);
+        let z = r * Math.sin(theta);
+
+        vector.set(x, y, z);
+   }
+
+    geometry = new ParametricGeometry(equation, 25, 25);
+    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh.position.set(x, y, z);
+    mesh.material.side = THREE.BackSide;
+    obj.add(mesh);
+    shapes.push({shape: mesh, axis: axis});
 }
 
 function addCylinder(obj, size, axis, x, y, z) {
     "use strict";
+    let equation = (u, v, vector) => {
+        u = u * 2 * Math.PI;
+        v = v * size;
+        let r = size / 2;
 
-    geometry = new THREE.CylinderGeometry(size, size, size*2);
+        let x = r * Math.cos(u);
+        let y = r * Math.sin(u);
+        let z = v;
+
+        vector.set(x, y, z);
+   }
+
+    geometry = new ParametricGeometry(equation, 25, 25);
     mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
     shapes.push({shape: mesh, axis: axis});
-}
-
-function addPyramidCylinder(obj, size, axis, x, y, z) {
-    "use strict";
-
-    geometry = new THREE.CylinderGeometry(size*0.5, size, size*2);
-    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
-
-    mesh.position.set(x, y, z);
-    obj.add(mesh);
-    shapes.push({shape: mesh, axis: axis});
-}
-
-function addEllipsisCylinder(obj, size, axis, x, y, z) {
-    const base = drawBase(size);
-
-    const v1 = new THREE.Vector3(0, 0, 0);
-    const v2 = new THREE.Vector3(0, 2 * size, 0);
-    const path = new THREE.LineCurve3(v1, v2)
-
-    const extrudeSettings = {
-        extrudePath: path,
-    };
-
-    geometry = new THREE.ExtrudeGeometry(base, extrudeSettings);
-    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
-
-    mesh.position.set(x, y, z);
-    obj.add(mesh);
-    shapes.push({shape: mesh, axis: axis});
-}
-
-function addInclinedEllipsisCylinder(obj, size, axis, x, y, z) {
-    const base = drawBase(size);
-    let v1, v2;
-    let path = new THREE.CurvePath();
-
-    v1 = new THREE.Vector3(0, 0, 0);
-    v2 = new THREE.Vector3(0, 1, 0);
-    path.add(new THREE.LineCurve3(v1, v2));
-
-    v1 = new THREE.Vector3(0, 1, 0);
-    v2 = new THREE.Vector3(size/2, size * 2 - 1, size/2);
-    path.add(new THREE.LineCurve3(v1, v2));
-
-    v1 = new THREE.Vector3(size/2, size * 2 - 1, size/2);
-    v2 = new THREE.Vector3(size/2, size * 2, size/2);
-    path.add(new THREE.LineCurve3(v1, v2));
-
-    const extrudeSettings = {
-        extrudePath: path,
-    };
-
-    geometry = new THREE.ExtrudeGeometry(base, extrudeSettings);
-    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
-
-    mesh.position.set(x, y, z);
-    obj.add(mesh);
-    shapes.push({shape: mesh, axis: axis});
-    console.log(mesh);
-}
-
-function drawBase(size) {
-    const base = new THREE.Shape();
-    base.moveTo(0, 0);
-    base.ellipse(
-        0, 0,
-        size * (2/3), size * (3/2),
-        0, Math.PI * 2,
-    );
-    return base;
 }
 
 function createRing(i, coordinates, innerRadius, outterRadius, material) {
@@ -328,15 +292,15 @@ function init() {
     createScene();
 }
 
-/////////////////////
-/* ANIMATION CYCLE */
-/////////////////////
-function animate() {
-    'use strict';
-    update();
-    render();
-    requestAnimationFrame(animate);
-}
+// /////////////////////
+// /* ANIMATION CYCLE */
+// /////////////////////
+// function animate() {
+//     'use strict';
+//     update();
+//     render();
+//     requestAnimationFrame(animate);
+// }
 
 ////////////////////////////
 /*        EVENTS          */
@@ -389,4 +353,4 @@ function onKeyUp(e) {
 }
 
 init();
-animate();
+// animate();
