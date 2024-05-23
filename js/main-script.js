@@ -22,7 +22,7 @@ const texture = loader.load("textures/AnOpticalPoem.png");
 
 const MATERIALS = {
     grey: new THREE.MeshLambertMaterial({ color: 0x727272 }),
-    darkOrange: new THREE.MeshLambertMaterial({ color: 0xfc6d00, side: THREE.DoubleSide }),
+    darkOrange: new THREE.MeshLambertMaterial({ color: 0xfc6d00, side: THREE.DoubleSide, wireframe: true }),
     lightOrange: new THREE.MeshLambertMaterial({ color: 0xfcc100 }),
     lightBlue: new THREE.MeshLambertMaterial({ color: 0x85e6fc }),
     red: new THREE.MeshLambertMaterial({ color: 0xa52a2a }),
@@ -48,7 +48,7 @@ const Y_AXIS = new THREE.Vector3(0, 1, 0);
 const Z_AXIS = new THREE.Vector3(0, 0, 1);
 
 const CAROUSEL_SPEED = 1;
-const SHAPES_SPEED = 2;
+const SHAPES_SPEED = 3;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -148,22 +148,28 @@ function addShapes(obj, size, axis, innerRadius, outterRadius) {
     const midRing = ((outterRadius - innerRadius) / 2) + innerRadius;
 
     addTorus(obj, size, axis, 0, size * 2, midRing);
-    addCylinder(obj, size, axis, midRing, size * 2, 0);
+    addSphere(obj, size, axis, midRing, size * 2, 0);
+    addEllipsoid(obj, size, axis, midRing * Math.sin(Math.PI / 4), size * 2, midRing * Math.cos(Math.PI / 4));
+    addCylinder(obj, size, axis, -1 * midRing * Math.sin(Math.PI / 4), size * 2, midRing * Math.cos(Math.PI / 4));
+    addRoundCone(obj, size, axis, -1 * midRing * Math.sin(Math.PI / 4), size * 2, -1 * midRing * Math.cos(Math.PI / 4));
+    addHyperbolicParaboloid(obj, size, axis, midRing * Math.sin(Math.PI / 4), size * 2, -1 * midRing * Math.cos(Math.PI / 4));
+    addCone(obj, size, axis, -midRing, size * 2, 0);
+    addCylinderCone(obj, size, axis, 0, size * 2, -midRing);
 }
 
 function addTorus(obj, size, axis, x, y, z) {
     "use strict";
-    let equation = (u, v, vector) => {
-        let theta = (u * 2 * Math.PI);
-        let phi = (v * 2 * Math.PI);
-        let R = size;
-        let r = size/2;
+    const equation = (u, v, vector) => {
+        const theta = (u * 2 * Math.PI);
+        const phi = (v * 2 * Math.PI);
+        const R = size;
+        const r = size/2;
 
-        let x = (R + r * Math.cos(theta)) * Math.cos(phi);
-        let y = (R + r * Math.cos(theta)) * Math.sin(phi);
-        let z = r * Math.sin(theta);
+        const x = (R + r * Math.cos(theta)) * Math.cos(phi);
+        const y = (R + r * Math.cos(theta)) * Math.sin(phi);
+        const z = r * Math.sin(theta);
 
-        vector.set(x, y, z);
+        vector.set(y, z, x);
    }
 
     geometry = new ParametricGeometry(equation, 25, 25);
@@ -175,18 +181,136 @@ function addTorus(obj, size, axis, x, y, z) {
     shapes.push({shape: mesh, axis: axis});
 }
 
+function addSphere(obj, size, axis, x, y, z) {
+    "use strict";
+    const equation = (u, v, vector) => {
+        const theta = u * 2 * Math.PI;
+        const phi = v * Math.PI;
+
+        const x = size * Math.sin(phi) * Math.cos(theta);
+        const y = size * Math.sin(phi) * Math.sin(theta);
+        const z = size * Math.cos(phi);
+
+        vector.set(y, z, x);
+   }
+
+    geometry = new ParametricGeometry(equation, 25, 25);
+    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+    shapes.push({shape: mesh, axis: axis});
+}
+
+function addEllipsoid(obj, size, axis, x, y, z) {
+    "use strict";
+    const equation = (u, v, vector) => {
+        const theta = u * 2 * Math.PI;
+        const phi = v * Math.PI;
+
+        const x = (size / 2) * Math.sin(phi) * Math.cos(theta);
+        const y = (size / 3) * Math.sin(phi) * Math.sin(theta);
+        const z = size * Math.cos(phi);
+
+        vector.set(y, z, x);
+   }
+
+    geometry = new ParametricGeometry(equation, 25, 25);
+    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+    shapes.push({shape: mesh, axis: axis});
+}
+
 function addCylinder(obj, size, axis, x, y, z) {
     "use strict";
-    let equation = (u, v, vector) => {
-        u = u * 2 * Math.PI;
-        v = v * size;
-        let r = size / 2;
+    const equation = (u, v, vector) => {
+        const theta = u * 2 * Math.PI;
 
-        let x = r * Math.cos(u);
-        let y = r * Math.sin(u);
-        let z = v;
+        const x = Math.cos(theta);
+        const y = Math.sin(theta);
+        const z = v * size;
 
-        vector.set(x, y, z);
+        vector.set(y, z, x);
+   }
+
+    geometry = new ParametricGeometry(equation, 25, 25);
+    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+    shapes.push({shape: mesh, axis: axis});
+}
+
+function addCone(obj, size, axis, x, y, z) {
+    "use strict";
+    const equation = (u, v, vector) => {
+        const theta = u * 2 * Math.PI;
+
+        const x = v * size * Math.cos(theta) / 2;
+        const y = v * size * Math.sin(theta) / 2;
+        const z = v * size;
+
+        vector.set(y, z, x);
+   }
+
+    geometry = new ParametricGeometry(equation, 25, 25);
+    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+    shapes.push({shape: mesh, axis: axis});
+}
+
+function addCylinderCone(obj, size, axis, x, y, z) {
+    "use strict";
+    const equation = (u, v, vector) => {
+        const theta = u * 2 * Math.PI;
+
+        const x = (v * size + 1) * Math.cos(theta);
+        const y = (v * size + 1) * Math.sin(theta);
+        const z = v * size / 2;
+
+        vector.set(y, z, x);
+   }
+
+    geometry = new ParametricGeometry(equation, 25, 25);
+    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+    shapes.push({shape: mesh, axis: axis});
+}
+
+function addRoundCone(obj, size, axis, x, y, z) {
+    "use strict";
+    const equation = (u, v, vector) => {
+        const theta = u * 2 * Math.PI;
+
+        const x = v * size * Math.cos(theta) / 2;
+        const y = v * size * Math.sin(theta) / 2;
+        const z = ((v * size) ** 2) / 2;
+
+        vector.set(y, z, x);
+   }
+
+    geometry = new ParametricGeometry(equation, 25, 25);
+    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+    shapes.push({shape: mesh, axis: axis});
+}
+
+function addHyperbolicParaboloid(obj, size, axis, x, y, z) {
+    "use strict";
+    const equation = (u, v, vector) => {
+        const x = size * (u - 0.5);
+        const y = size * (v - 0.5);
+        const z = size * (x * x - y * y) / 4;
+
+        vector.set(y, z, x);
    }
 
     geometry = new ParametricGeometry(equation, 25, 25);
