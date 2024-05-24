@@ -309,7 +309,7 @@ function createCarousel() {
     ringHeights = Array(3).fill(0);
     ringSpeeds = Array(3);
     for (let i = 0; i < ringSpeeds.length; i++) {
-        ringSpeeds[i] = (Math.random() - 0.5) * 2 * RING_SPEEDS;
+        ringSpeeds[i] = (Math.random() - 0.5) * 2 * RINGS_SPEED;
     }
     shapes = [];
     shapesAngle = 0;
