@@ -15,6 +15,7 @@ let directionalLight,
     spotLights = [],
     pointLights = [];
 let mesh, geometry;
+let randomIndex;
 
 let mobStrip;
 let skyDome;
@@ -45,6 +46,14 @@ const BASIC = {
     }),
     red: new THREE.MeshBasicMaterial({
         color: 0xa52a2a,
+        side: THREE.DoubleSide,
+    }),
+    purple: new THREE.MeshBasicMaterial({
+        color: 0xa020f0,
+        side: THREE.DoubleSide,
+    }),
+    green: new THREE.MeshBasicMaterial({
+        color: 0x20f038,
         side: THREE.DoubleSide,
     }),
     skyDome: new THREE.MeshBasicMaterial({
@@ -78,6 +87,14 @@ const LAMBERT = {
         color: 0xa52a2a,
         side: THREE.DoubleSide,
     }),
+    purple: new THREE.MeshLambertMaterial({
+        color: 0xa020f0,
+        side: THREE.DoubleSide,
+    }),
+    green: new THREE.MeshLambertMaterial({
+        color: 0x20f038,
+        side: THREE.DoubleSide,
+    }),
     skyDome: new THREE.MeshLambertMaterial({
         map: texture,
         side: THREE.BackSide,
@@ -107,6 +124,14 @@ const PHONG = {
     }),
     red: new THREE.MeshPhongMaterial({
         color: 0xa52a2a,
+        side: THREE.DoubleSide,
+    }),
+    purple: new THREE.MeshPhongMaterial({
+        color: 0xa020f0,
+        side: THREE.DoubleSide,
+    }),
+    green: new THREE.MeshPhongMaterial({
+        color: 0x20f038,
         side: THREE.DoubleSide,
     }),
     skyDome: new THREE.MeshPhongMaterial({
@@ -140,6 +165,14 @@ const TOON = {
         color: 0xa52a2a,
         side: THREE.DoubleSide,
     }),
+    purple: new THREE.MeshToonMaterial({
+        color: 0xa020f0,
+        side: THREE.DoubleSide,
+    }),
+    green: new THREE.MeshToonMaterial({
+        color: 0x20f038,
+        side: THREE.DoubleSide,
+    }),
     skyDome: new THREE.MeshToonMaterial({
         map: texture,
         side: THREE.BackSide,
@@ -164,6 +197,12 @@ const NORMAL = {
         side: THREE.DoubleSide,
     }),
     red: new THREE.MeshNormalMaterial({
+        side: THREE.DoubleSide,
+    }),
+    purple: new THREE.MeshNormalMaterial({
+        side: THREE.DoubleSide,
+    }),
+    green: new THREE.MeshNormalMaterial({
         side: THREE.DoubleSide,
     }),
     skyDome: new THREE.MeshNormalMaterial({
@@ -208,6 +247,8 @@ function createScene() {
     createSkyDome();
     createCarousel();
     addLights();
+
+    randomizeMaterials();
     setMaterials(LAMBERT);
 
     group.position.set(10, -DIMENSIONS.hBase - 5, 10);
@@ -775,6 +816,13 @@ function update() {
     }
 }
 
+function randomizeMaterials() {
+    randomIndex = Array(rings[0].children.length + 1);
+    for (let i = 1; i < rings[0].children.length; i++) {
+        randomIndex[i] = Math.round(Math.random() * 5) + 1;
+    }
+}
+
 function setMaterials(material) {
     skyDome.material = material.skyDome;
     carousel.children[0].material = material.lightOrange;
@@ -783,11 +831,12 @@ function setMaterials(material) {
     rings[2].children[0].material = material.red;
     mobStrip.material = material.mobiusColor;
 
+    const keys = Object.keys(material);
     material.darkOrange.side = THREE.DoubleSide;
     for (let i = 1; i < rings[0].children.length; i++) {
-        rings[0].children[i].material = material.darkOrange;
-        rings[1].children[i].material = material.darkOrange;
-        rings[2].children[i].material = material.darkOrange;
+        rings[0].children[i].material = material[keys[randomIndex[i]]];
+        rings[1].children[i].material = material[keys[randomIndex[i]]];
+        rings[2].children[i].material = material[keys[randomIndex[i]]];
     }
 }
 
