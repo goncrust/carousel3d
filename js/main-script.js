@@ -13,20 +13,50 @@ let scene, renderer, camera
 let directionalLight, ambientLight;
 let mesh, geometry;
 
+let skyDome;
 let carousel, carouselAngle;
 let rings, ringHeights, ringSpeeds;
 let shapes, shapesAngle;
 
 const loader = new THREE.TextureLoader();
 const texture = loader.load("textures/AnOpticalPoem.png");
+texture.colorSpace = THREE.LinearSRGBColorSpace;
 
-const MATERIALS = {
-    grey: new THREE.MeshLambertMaterial({ color: 0x727272 }),
-    darkOrange: new THREE.MeshLambertMaterial({ color: 0xfc6d00, side: THREE.DoubleSide, wireframe: true }),
-    lightOrange: new THREE.MeshLambertMaterial({ color: 0xfcc100 }),
-    lightBlue: new THREE.MeshLambertMaterial({ color: 0x85e6fc }),
-    red: new THREE.MeshLambertMaterial({ color: 0xa52a2a }),
-    skyDome: new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide }),
+// TODO Weird shapes (maybe its the lighting)
+const LAMBERT = {
+    grey: new THREE.MeshLambertMaterial({ color: 0x727272, side: THREE.DoubleSide }),
+    darkOrange: new THREE.MeshLambertMaterial({ color: 0xfc6d00, side: THREE.DoubleSide }),
+    lightOrange: new THREE.MeshLambertMaterial({ color: 0xfcc100, side: THREE.DoubleSide }),
+    lightBlue: new THREE.MeshLambertMaterial({ color: 0x85e6fc, side: THREE.DoubleSide }),
+    red: new THREE.MeshLambertMaterial({ color: 0xa52a2a, side: THREE.DoubleSide }),
+    skyDome: new THREE.MeshLambertMaterial({ map: texture, side: THREE.BackSide }),
+};
+
+const PHONG = {
+    grey: new THREE.MeshPhongMaterial({ color: 0x727272, side: THREE.DoubleSide }),
+    darkOrange: new THREE.MeshPhongMaterial({ color: 0xfc6d00, side: THREE.DoubleSide }),
+    lightOrange: new THREE.MeshPhongMaterial({ color: 0xfcc100, side: THREE.DoubleSide }),
+    lightBlue: new THREE.MeshPhongMaterial({ color: 0x85e6fc, side: THREE.DoubleSide }),
+    red: new THREE.MeshPhongMaterial({ color: 0xa52a2a, side: THREE.DoubleSide }),
+    skyDome: new THREE.MeshPhongMaterial({ map: texture, side: THREE.BackSide }),
+};
+
+const TOON = {
+    grey: new THREE.MeshToonMaterial({ color: 0x727272, side: THREE.DoubleSide }),
+    darkOrange: new THREE.MeshToonMaterial({ color: 0xfc6d00, side: THREE.DoubleSide }),
+    lightOrange: new THREE.MeshToonMaterial({ color: 0xfcc100, side: THREE.DoubleSide }),
+    lightBlue: new THREE.MeshToonMaterial({ color: 0x85e6fc, side: THREE.DoubleSide }),
+    red: new THREE.MeshToonMaterial({ color: 0xa52a2a, side: THREE.DoubleSide }),
+    skyDome: new THREE.MeshToonMaterial({ map: texture, side: THREE.BackSide }),
+};
+
+const NORMAL = {
+    grey: new THREE.MeshNormalMaterial({ color: 0x727272, side: THREE.DoubleSide }),
+    darkOrange: new THREE.MeshNormalMaterial({ color: 0xfc6d00, side: THREE.DoubleSide }),
+    lightOrange: new THREE.MeshNormalMaterial({ color: 0xfcc100, side: THREE.DoubleSide }),
+    lightBlue: new THREE.MeshNormalMaterial({ color: 0x85e6fc, side: THREE.DoubleSide }),
+    red: new THREE.MeshNormalMaterial({ color: 0xa52a2a, side: THREE.DoubleSide }),
+    skyDome: new THREE.MeshNormalMaterial({ normalMap: texture, side: THREE.BackSide }),
 };
 
 const DIMENSIONS = {
@@ -95,8 +125,8 @@ function addLights() {
 ////////////////////////
 function createSkyDome() {
     geometry = new THREE.SphereGeometry(70);
-    mesh = new THREE.Mesh(geometry, MATERIALS.skyDome);
-    scene.add(mesh);
+    skyDome = new THREE.Mesh(geometry, LAMBERT.skyDome);
+    scene.add(skyDome);
 
 }
 
@@ -114,15 +144,15 @@ function createCarousel() {
 
     const startingPoint = [0, DIMENSIONS.hRing / 2, 0];
 
-    createRing(0, startingPoint, DIMENSIONS.rBase, DIMENSIONS.rInnerRing, MATERIALS.grey);
+    createRing(0, startingPoint, DIMENSIONS.rBase, DIMENSIONS.rInnerRing, LAMBERT.grey);
     addShapes(rings[0], 1, X_AXIS, DIMENSIONS.rBase, DIMENSIONS.rInnerRing);
     carousel.add(rings[0]);
 
-    createRing(1, startingPoint, DIMENSIONS.rInnerRing, DIMENSIONS.rMiddleRing, MATERIALS.lightBlue);
+    createRing(1, startingPoint, DIMENSIONS.rInnerRing, DIMENSIONS.rMiddleRing, LAMBERT.lightBlue);
     addShapes(rings[1], 2, Y_AXIS, DIMENSIONS.rInnerRing, DIMENSIONS.rMiddleRing);
     carousel.add(rings[1]);
 
-    createRing(2, startingPoint, DIMENSIONS.rMiddleRing, DIMENSIONS.rOutterRing, MATERIALS.red);
+    createRing(2, startingPoint, DIMENSIONS.rMiddleRing, DIMENSIONS.rOutterRing, LAMBERT.red);
     addShapes(rings[2], 3, Z_AXIS, DIMENSIONS.rMiddleRing, DIMENSIONS.rOutterRing);
     carousel.add(rings[2]);
 
@@ -137,7 +167,7 @@ function addBase(obj, x, y, z) {
         DIMENSIONS.rBase,
         DIMENSIONS.hBase,
     );
-    mesh = new THREE.Mesh(geometry, MATERIALS.lightOrange);
+    mesh = new THREE.Mesh(geometry, LAMBERT.lightOrange);
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
@@ -173,7 +203,8 @@ function addTorus(obj, size, axis, x, y, z) {
    }
 
     geometry = new ParametricGeometry(equation, 25, 25);
-    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh = new THREE.Mesh(geometry, LAMBERT.darkOrange);
 
     mesh.position.set(x, y, z);
     mesh.material.side = THREE.BackSide;
@@ -195,7 +226,8 @@ function addSphere(obj, size, axis, x, y, z) {
    }
 
     geometry = new ParametricGeometry(equation, 25, 25);
-    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh = new THREE.Mesh(geometry, LAMBERT.darkOrange);
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
@@ -216,7 +248,8 @@ function addEllipsoid(obj, size, axis, x, y, z) {
    }
 
     geometry = new ParametricGeometry(equation, 25, 25);
-    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh = new THREE.Mesh(geometry, LAMBERT.darkOrange);
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
@@ -236,7 +269,8 @@ function addCylinder(obj, size, axis, x, y, z) {
    }
 
     geometry = new ParametricGeometry(equation, 25, 25);
-    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh = new THREE.Mesh(geometry, LAMBERT.darkOrange);
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
@@ -256,7 +290,8 @@ function addCone(obj, size, axis, x, y, z) {
    }
 
     geometry = new ParametricGeometry(equation, 25, 25);
-    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh = new THREE.Mesh(geometry, LAMBERT.darkOrange);
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
@@ -276,7 +311,8 @@ function addCylinderCone(obj, size, axis, x, y, z) {
    }
 
     geometry = new ParametricGeometry(equation, 25, 25);
-    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh = new THREE.Mesh(geometry, LAMBERT.darkOrange);
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
@@ -296,7 +332,8 @@ function addRoundCone(obj, size, axis, x, y, z) {
    }
 
     geometry = new ParametricGeometry(equation, 25, 25);
-    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh = new THREE.Mesh(geometry, LAMBERT.darkOrange);
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
@@ -314,7 +351,8 @@ function addHyperbolicParaboloid(obj, size, axis, x, y, z) {
    }
 
     geometry = new ParametricGeometry(equation, 25, 25);
-    mesh = new THREE.Mesh(geometry, MATERIALS.darkOrange);
+
+    mesh = new THREE.Mesh(geometry, LAMBERT.darkOrange);
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
@@ -388,6 +426,20 @@ function update(){
     }
 }
 
+function setMaterials(material) {
+    skyDome.material = material.skyDome;
+    carousel.children[0].material = material.lightOrange;
+    rings[0].children[0].material = material.grey;
+    rings[1].children[0].material = material.lightBlue;
+    rings[2].children[0].material = material.red;
+
+    for (let i = 1; i < rings[0].children.length; i++) {
+        rings[0].children[i].material = material.darkOrange;
+        rings[1].children[i].material = material.darkOrange;
+        rings[2].children[i].material = material.darkOrange;
+    }
+}
+
 /////////////
 /* DISPLAY */
 /////////////
@@ -452,12 +504,29 @@ function onKeyDown(e) {
 
     if (isFinite(e.key)) {
         try {
-            ringSpeeds[e.key - 1] = 20;
+            ringSpeeds[e.key - 1] = ringSpeeds[e.key - 1] ? 0 : 20;
         } catch(error) {}
     } else {
         switch(e.key) {
             case 'd':
-                directionalLight.intensity = directionalLight.intensity ? 0 : 1;
+                directionalLight.visible = !directionalLight.visible;
+                break;
+            case 'q':
+                setMaterials(LAMBERT);
+                break;
+            case 'w':
+                setMaterials(PHONG);
+                break;
+            case 'e':
+                console.log(TOON.grey);
+                setMaterials(TOON);
+                break;
+            case 'r':
+                console.log(NORMAL.grey);
+                setMaterials(NORMAL);
+                break;
+            case 't':
+                // TODO
                 break;
             default:
                 break;
@@ -470,11 +539,6 @@ function onKeyDown(e) {
 ///////////////////////
 function onKeyUp(e) {
     "use strict";
-    if (isFinite(e.key)) {
-        try {
-            ringSpeeds[e.key - 1] = 0;
-        } catch(error) {}
-    }
 }
 
 init();
