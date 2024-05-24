@@ -12,7 +12,8 @@ import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 let scene, renderer, camera;
 let directionalLight,
     ambientLight,
-    spotLights = [];
+    spotLights = [],
+    pointLights = [];
 let mesh, geometry;
 
 let mobStrip;
@@ -52,10 +53,9 @@ const BASIC = {
     }),
     mobiusColor: new THREE.MeshBasicMaterial({
         color: 0xff0000,
-        side: THREE.DoubleSide 
+        side: THREE.DoubleSide,
     }),
 };
-
 
 const LAMBERT = {
     grey: new THREE.MeshLambertMaterial({
@@ -84,7 +84,7 @@ const LAMBERT = {
     }),
     mobiusColor: new THREE.MeshLambertMaterial({
         color: 0xff0000,
-        side: THREE.DoubleSide 
+        side: THREE.DoubleSide,
     }),
 };
 
@@ -115,7 +115,7 @@ const PHONG = {
     }),
     mobiusColor: new THREE.MeshPhongMaterial({
         color: 0xff0000,
-        side: THREE.DoubleSide 
+        side: THREE.DoubleSide,
     }),
 };
 
@@ -146,7 +146,7 @@ const TOON = {
     }),
     mobiusColor: new THREE.MeshToonMaterial({
         color: 0xff0000,
-        side: THREE.DoubleSide 
+        side: THREE.DoubleSide,
     }),
 };
 
@@ -171,7 +171,7 @@ const NORMAL = {
     }),
     mobiusColor: new THREE.MeshNormalMaterial({
         color: 0xff0000,
-        side: THREE.DoubleSide 
+        side: THREE.DoubleSide,
     }),
 };
 
@@ -204,9 +204,9 @@ function createScene() {
     scene = new THREE.Scene();
 
     addCamera();
-    addLights();
     createSkyDome();
     createCarousel();
+    addLights();
     setMaterials(LAMBERT);
 }
 
@@ -237,14 +237,56 @@ function addSpotLight(x, y, z, ring, obj) {
     spotLights.push(spotLight);
 }
 
+function addPointLights() {
+    const radius = DIMENSIONS.rBase / 2;
+
+    const pointLightCoords = [
+        new THREE.Vector3(0, DIMENSIONS.hBase, radius),
+        new THREE.Vector3(radius, DIMENSIONS.hBase, 0),
+        new THREE.Vector3(0, DIMENSIONS.hBase, -radius),
+        new THREE.Vector3(-radius, DIMENSIONS.hBase, 0),
+        new THREE.Vector3(
+            radius * Math.sin(Math.PI / 4),
+            DIMENSIONS.hBase,
+            radius * Math.cos(Math.PI / 4),
+        ),
+        new THREE.Vector3(
+            -1 * radius * Math.sin(Math.PI / 4),
+            DIMENSIONS.hBase,
+            radius * Math.cos(Math.PI / 4),
+        ),
+        new THREE.Vector3(
+            -1 * radius * Math.sin(Math.PI / 4),
+            DIMENSIONS.hBase,
+            -1 * radius * Math.cos(Math.PI / 4),
+        ),
+        new THREE.Vector3(
+            radius * Math.sin(Math.PI / 4),
+            DIMENSIONS.hBase,
+            -1 * radius * Math.cos(Math.PI / 4),
+        ),
+    ];
+
+    for (let i = 0; i < pointLightCoords.length; i++) {
+        console.log(pointLightCoords[i]);
+        let pointLight = new THREE.PointLight(0xffffff, 10);
+        pointLight.position.set(...pointLightCoords[i]);
+        pointLight.distance = 15;
+        carousel.add(pointLight);
+        pointLights.push(pointLight);
+    }
+}
+
 function addLights() {
     directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.x = 5;
     directionalLight.position.z = 5;
     scene.add(directionalLight);
 
-    ambientLight = new THREE.AmbientLight(0xfcb73f, 0.3);
+    ambientLight = new THREE.AmbientLight(0xfcb73f, 0.2);
     scene.add(ambientLight);
+
+    addPointLights();
 }
 
 ////////////////////////
@@ -333,43 +375,60 @@ function addBase(obj, x, y, z) {
 
 function createMobiusStrip(obj, x, y, z) {
     "use strict";
-    
+
     geometry = new THREE.BufferGeometry();
     let vertices = new Float32Array([
-        -1,0,1,          // 0
-        -1,-2,1,        // 1    
-        0.5,0,2.5,      // 2
-        1,-2,3,         // 3    
-        3,-0.5,2.5,     // 4
-        4,-2,2,         // 5
-        4,-1,2,         // 6
-        5,-2,0,         // 7
-        4,-2,-1,        // 8
-        3,-2,-0.5,      // 9
-        3,-2,-2,        // 10
-        1,-2,-1,        // 11
-        2,-1,-2.5,      // 12
-        0,0,-1,         // 13
-        -1,-2,0,        // 14
+        -1,
+        0,
+        1, // 0
+        -1,
+        -2,
+        1, // 1
+        0.5,
+        0,
+        2.5, // 2
+        1,
+        -2,
+        3, // 3
+        3,
+        -0.5,
+        2.5, // 4
+        4,
+        -2,
+        2, // 5
+        4,
+        -1,
+        2, // 6
+        5,
+        -2,
+        0, // 7
+        4,
+        -2,
+        -1, // 8
+        3,
+        -2,
+        -0.5, // 9
+        3,
+        -2,
+        -2, // 10
+        1,
+        -2,
+        -1, // 11
+        2,
+        -1,
+        -2.5, // 12
+        0,
+        0,
+        -1, // 13
+        -1,
+        -2,
+        0, // 14
     ]);
 
     const indices = [
-        0,1,2,
-        1,2,3,
-        2,3,4,
-        3,4,5,
-        4,5,6,
-        5,6,7,
-        6,7,8,
-        7,8,9,
-        6,7,9,
-        8,9,10,
-        9,10,11,
-        10,11,12,
-        11,12,13,
-        11,13,14,
-        0,1,14,
-        0,13,14,
+        0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9,
+        6, 7, 9, 8, 9, 10, 9, 10, 11, 10, 11, 12, 11, 12, 13, 11, 13, 14, 0, 1,
+        14, 0, 13, 14,
     ];
 
     geometry.setIndex(indices);
@@ -379,7 +438,7 @@ function createMobiusStrip(obj, x, y, z) {
     );
 
     geometry.computeVertexNormals();
-    
+
     mobStrip = new THREE.Mesh(geometry, LAMBERT.mobiusColor);
     mobStrip.position.set(x, y, z);
     mobStrip.scale.multiplyScalar(1.2);
@@ -807,6 +866,12 @@ function onKeyDown(e) {
             case "s":
                 for (let i = 0; i < spotLights.length; i++) {
                     spotLights[i].visible = !spotLights[i].visible;
+                }
+                break;
+            case "P":
+            case "p":
+                for (let i = 0; i < pointLights.length; i++) {
+                    pointLights[i].visible = !pointLights[i].visible;
                 }
                 break;
             case "Q":
