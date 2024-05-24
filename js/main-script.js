@@ -170,7 +170,6 @@ const NORMAL = {
         side: THREE.BackSide,
     }),
     mobiusColor: new THREE.MeshNormalMaterial({
-        color: 0xff0000,
         side: THREE.DoubleSide,
     }),
 };
