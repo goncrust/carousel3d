@@ -285,7 +285,7 @@ function addLights() {
     directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.x = 5;
     directionalLight.position.z = 5;
-    directionalLight.target = caroussel;
+    directionalLight.target = carousel;
     group.add(directionalLight);
 
     ambientLight = new THREE.AmbientLight(0xfcb73f, 0.2);
