@@ -1,15 +1,15 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
-import { ParametricGeometries } from 'three/addons/geometries/ParametricGeometries.js';
-import { VRButton } from 'three/addons/webxr/VRButton.js';
-import * as Stats from 'three/addons/libs/stats.module.js';
-import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { ParametricGeometry } from "three/addons/geometries/ParametricGeometry.js";
+import { ParametricGeometries } from "three/addons/geometries/ParametricGeometries.js";
+import { VRButton } from "three/addons/webxr/VRButton.js";
+import * as Stats from "three/addons/libs/stats.module.js";
+import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 
 //////////////////////
 /* GLOBAL VARIABLES */
 //////////////////////
-let scene, renderer, camera
+let scene, renderer, camera;
 let directionalLight, ambientLight;
 let mesh, geometry;
 
@@ -24,39 +24,111 @@ texture.colorSpace = THREE.LinearSRGBColorSpace;
 
 // TODO Weird shapes (maybe its the lighting)
 const LAMBERT = {
-    grey: new THREE.MeshLambertMaterial({ color: 0x727272, side: THREE.DoubleSide }),
-    darkOrange: new THREE.MeshLambertMaterial({ color: 0xfc6d00, side: THREE.DoubleSide }),
-    lightOrange: new THREE.MeshLambertMaterial({ color: 0xfcc100, side: THREE.DoubleSide }),
-    lightBlue: new THREE.MeshLambertMaterial({ color: 0x85e6fc, side: THREE.DoubleSide }),
-    red: new THREE.MeshLambertMaterial({ color: 0xa52a2a, side: THREE.DoubleSide }),
-    skyDome: new THREE.MeshLambertMaterial({ map: texture, side: THREE.BackSide }),
+    grey: new THREE.MeshLambertMaterial({
+        color: 0x727272,
+        side: THREE.DoubleSide,
+    }),
+    darkOrange: new THREE.MeshLambertMaterial({
+        color: 0xfc6d00,
+        side: THREE.DoubleSide,
+    }),
+    lightOrange: new THREE.MeshLambertMaterial({
+        color: 0xfcc100,
+        side: THREE.DoubleSide,
+    }),
+    lightBlue: new THREE.MeshLambertMaterial({
+        color: 0x85e6fc,
+        side: THREE.DoubleSide,
+    }),
+    red: new THREE.MeshLambertMaterial({
+        color: 0xa52a2a,
+        side: THREE.DoubleSide,
+    }),
+    skyDome: new THREE.MeshLambertMaterial({
+        map: texture,
+        side: THREE.BackSide,
+    }),
 };
 
 const PHONG = {
-    grey: new THREE.MeshPhongMaterial({ color: 0x727272, side: THREE.DoubleSide }),
-    darkOrange: new THREE.MeshPhongMaterial({ color: 0xfc6d00, side: THREE.DoubleSide }),
-    lightOrange: new THREE.MeshPhongMaterial({ color: 0xfcc100, side: THREE.DoubleSide }),
-    lightBlue: new THREE.MeshPhongMaterial({ color: 0x85e6fc, side: THREE.DoubleSide }),
-    red: new THREE.MeshPhongMaterial({ color: 0xa52a2a, side: THREE.DoubleSide }),
-    skyDome: new THREE.MeshPhongMaterial({ map: texture, side: THREE.BackSide }),
+    grey: new THREE.MeshPhongMaterial({
+        color: 0x727272,
+        side: THREE.DoubleSide,
+    }),
+    darkOrange: new THREE.MeshPhongMaterial({
+        color: 0xfc6d00,
+        side: THREE.DoubleSide,
+    }),
+    lightOrange: new THREE.MeshPhongMaterial({
+        color: 0xfcc100,
+        side: THREE.DoubleSide,
+    }),
+    lightBlue: new THREE.MeshPhongMaterial({
+        color: 0x85e6fc,
+        side: THREE.DoubleSide,
+    }),
+    red: new THREE.MeshPhongMaterial({
+        color: 0xa52a2a,
+        side: THREE.DoubleSide,
+    }),
+    skyDome: new THREE.MeshPhongMaterial({
+        map: texture,
+        side: THREE.BackSide,
+    }),
 };
 
 const TOON = {
-    grey: new THREE.MeshToonMaterial({ color: 0x727272, side: THREE.DoubleSide }),
-    darkOrange: new THREE.MeshToonMaterial({ color: 0xfc6d00, side: THREE.DoubleSide }),
-    lightOrange: new THREE.MeshToonMaterial({ color: 0xfcc100, side: THREE.DoubleSide }),
-    lightBlue: new THREE.MeshToonMaterial({ color: 0x85e6fc, side: THREE.DoubleSide }),
-    red: new THREE.MeshToonMaterial({ color: 0xa52a2a, side: THREE.DoubleSide }),
-    skyDome: new THREE.MeshToonMaterial({ map: texture, side: THREE.BackSide }),
+    grey: new THREE.MeshToonMaterial({
+        color: 0x727272,
+        side: THREE.DoubleSide,
+    }),
+    darkOrange: new THREE.MeshToonMaterial({
+        color: 0xfc6d00,
+        side: THREE.DoubleSide,
+    }),
+    lightOrange: new THREE.MeshToonMaterial({
+        color: 0xfcc100,
+        side: THREE.DoubleSide,
+    }),
+    lightBlue: new THREE.MeshToonMaterial({
+        color: 0x85e6fc,
+        side: THREE.DoubleSide,
+    }),
+    red: new THREE.MeshToonMaterial({
+        color: 0xa52a2a,
+        side: THREE.DoubleSide,
+    }),
+    skyDome: new THREE.MeshToonMaterial({
+        map: texture,
+        side: THREE.BackSide,
+    }),
 };
 
 const NORMAL = {
-    grey: new THREE.MeshNormalMaterial({ color: 0x727272, side: THREE.DoubleSide }),
-    darkOrange: new THREE.MeshNormalMaterial({ color: 0xfc6d00, side: THREE.DoubleSide }),
-    lightOrange: new THREE.MeshNormalMaterial({ color: 0xfcc100, side: THREE.DoubleSide }),
-    lightBlue: new THREE.MeshNormalMaterial({ color: 0x85e6fc, side: THREE.DoubleSide }),
-    red: new THREE.MeshNormalMaterial({ color: 0xa52a2a, side: THREE.DoubleSide }),
-    skyDome: new THREE.MeshNormalMaterial({ normalMap: texture, side: THREE.BackSide }),
+    grey: new THREE.MeshNormalMaterial({
+        color: 0x727272,
+        side: THREE.DoubleSide,
+    }),
+    darkOrange: new THREE.MeshNormalMaterial({
+        color: 0xfc6d00,
+        side: THREE.DoubleSide,
+    }),
+    lightOrange: new THREE.MeshNormalMaterial({
+        color: 0xfcc100,
+        side: THREE.DoubleSide,
+    }),
+    lightBlue: new THREE.MeshNormalMaterial({
+        color: 0x85e6fc,
+        side: THREE.DoubleSide,
+    }),
+    red: new THREE.MeshNormalMaterial({
+        color: 0xa52a2a,
+        side: THREE.DoubleSide,
+    }),
+    skyDome: new THREE.MeshNormalMaterial({
+        normalMap: texture,
+        side: THREE.BackSide,
+    }),
 };
 
 const DIMENSIONS = {
@@ -71,7 +143,7 @@ const DIMENSIONS = {
 const clock = new THREE.Clock();
 
 const MAX_RING_HEIGHT = DIMENSIONS.hBase,
-      MIN_RING_HEIGHT = DIMENSIONS.hRing / 2;
+    MIN_RING_HEIGHT = DIMENSIONS.hRing / 2;
 
 const X_AXIS = new THREE.Vector3(1, 0, 0);
 const Y_AXIS = new THREE.Vector3(0, 1, 0);
@@ -83,8 +155,8 @@ const SHAPES_SPEED = 3;
 /////////////////////
 /* CREATE SCENE(S) */
 /////////////////////
-function createScene(){
-    'use strict';
+function createScene() {
+    "use strict";
     scene = new THREE.Scene();
 
     addCamera();
@@ -127,7 +199,6 @@ function createSkyDome() {
     geometry = new THREE.SphereGeometry(70);
     skyDome = new THREE.Mesh(geometry, LAMBERT.skyDome);
     scene.add(skyDome);
-
 }
 
 function createCarousel() {
@@ -144,16 +215,46 @@ function createCarousel() {
 
     const startingPoint = [0, DIMENSIONS.hRing / 2, 0];
 
-    createRing(0, startingPoint, DIMENSIONS.rBase, DIMENSIONS.rInnerRing, LAMBERT.grey);
+    createRing(
+        0,
+        startingPoint,
+        DIMENSIONS.rBase,
+        DIMENSIONS.rInnerRing,
+        LAMBERT.grey,
+    );
     addShapes(rings[0], 1, X_AXIS, DIMENSIONS.rBase, DIMENSIONS.rInnerRing);
     carousel.add(rings[0]);
 
-    createRing(1, startingPoint, DIMENSIONS.rInnerRing, DIMENSIONS.rMiddleRing, LAMBERT.lightBlue);
-    addShapes(rings[1], 2, Y_AXIS, DIMENSIONS.rInnerRing, DIMENSIONS.rMiddleRing);
+    createRing(
+        1,
+        startingPoint,
+        DIMENSIONS.rInnerRing,
+        DIMENSIONS.rMiddleRing,
+        LAMBERT.lightBlue,
+    );
+    addShapes(
+        rings[1],
+        2,
+        Y_AXIS,
+        DIMENSIONS.rInnerRing,
+        DIMENSIONS.rMiddleRing,
+    );
     carousel.add(rings[1]);
 
-    createRing(2, startingPoint, DIMENSIONS.rMiddleRing, DIMENSIONS.rOutterRing, LAMBERT.red);
-    addShapes(rings[2], 3, Z_AXIS, DIMENSIONS.rMiddleRing, DIMENSIONS.rOutterRing);
+    createRing(
+        2,
+        startingPoint,
+        DIMENSIONS.rMiddleRing,
+        DIMENSIONS.rOutterRing,
+        LAMBERT.red,
+    );
+    addShapes(
+        rings[2],
+        3,
+        Z_AXIS,
+        DIMENSIONS.rMiddleRing,
+        DIMENSIONS.rOutterRing,
+    );
     carousel.add(rings[2]);
 
     scene.add(carousel);
@@ -175,14 +276,42 @@ function addBase(obj, x, y, z) {
 
 function addShapes(obj, size, axis, innerRadius, outterRadius) {
     "use strict";
-    const midRing = ((outterRadius - innerRadius) / 2) + innerRadius;
+    const midRing = (outterRadius - innerRadius) / 2 + innerRadius;
 
     addTorus(obj, size, axis, 0, size * 2, midRing);
     addSphere(obj, size, axis, midRing, size * 2, 0);
-    addEllipsoid(obj, size, axis, midRing * Math.sin(Math.PI / 4), size * 2, midRing * Math.cos(Math.PI / 4));
-    addCylinder(obj, size, axis, -1 * midRing * Math.sin(Math.PI / 4), size * 2, midRing * Math.cos(Math.PI / 4));
-    addRoundCone(obj, size, axis, -1 * midRing * Math.sin(Math.PI / 4), size * 2, -1 * midRing * Math.cos(Math.PI / 4));
-    addHyperbolicParaboloid(obj, size, axis, midRing * Math.sin(Math.PI / 4), size * 2, -1 * midRing * Math.cos(Math.PI / 4));
+    addEllipsoid(
+        obj,
+        size,
+        axis,
+        midRing * Math.sin(Math.PI / 4),
+        size * 2,
+        midRing * Math.cos(Math.PI / 4),
+    );
+    addCylinder(
+        obj,
+        size,
+        axis,
+        -1 * midRing * Math.sin(Math.PI / 4),
+        size * 2,
+        midRing * Math.cos(Math.PI / 4),
+    );
+    addRoundCone(
+        obj,
+        size,
+        axis,
+        -1 * midRing * Math.sin(Math.PI / 4),
+        size * 2,
+        -1 * midRing * Math.cos(Math.PI / 4),
+    );
+    addHyperbolicParaboloid(
+        obj,
+        size,
+        axis,
+        midRing * Math.sin(Math.PI / 4),
+        size * 2,
+        -1 * midRing * Math.cos(Math.PI / 4),
+    );
     addCone(obj, size, axis, -midRing, size * 2, 0);
     addCylinderCone(obj, size, axis, 0, size * 2, -midRing);
 }
@@ -190,17 +319,17 @@ function addShapes(obj, size, axis, innerRadius, outterRadius) {
 function addTorus(obj, size, axis, x, y, z) {
     "use strict";
     const equation = (u, v, vector) => {
-        const theta = (u * 2 * Math.PI);
-        const phi = (v * 2 * Math.PI);
+        const theta = u * 2 * Math.PI;
+        const phi = v * 2 * Math.PI;
         const R = size;
-        const r = size/2;
+        const r = size / 2;
 
         const x = (R + r * Math.cos(theta)) * Math.cos(phi);
         const y = (R + r * Math.cos(theta)) * Math.sin(phi);
         const z = r * Math.sin(theta);
 
         vector.set(y, z, x);
-   }
+    };
 
     geometry = new ParametricGeometry(equation, 25, 25);
 
@@ -209,7 +338,7 @@ function addTorus(obj, size, axis, x, y, z) {
     mesh.position.set(x, y, z);
     mesh.material.side = THREE.BackSide;
     obj.add(mesh);
-    shapes.push({shape: mesh, axis: axis});
+    shapes.push({ shape: mesh, axis: axis });
 }
 
 function addSphere(obj, size, axis, x, y, z) {
@@ -223,7 +352,7 @@ function addSphere(obj, size, axis, x, y, z) {
         const z = size * Math.cos(phi);
 
         vector.set(y, z, x);
-   }
+    };
 
     geometry = new ParametricGeometry(equation, 25, 25);
 
@@ -231,7 +360,7 @@ function addSphere(obj, size, axis, x, y, z) {
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
-    shapes.push({shape: mesh, axis: axis});
+    shapes.push({ shape: mesh, axis: axis });
 }
 
 function addEllipsoid(obj, size, axis, x, y, z) {
@@ -245,7 +374,7 @@ function addEllipsoid(obj, size, axis, x, y, z) {
         const z = size * Math.cos(phi);
 
         vector.set(y, z, x);
-   }
+    };
 
     geometry = new ParametricGeometry(equation, 25, 25);
 
@@ -253,7 +382,7 @@ function addEllipsoid(obj, size, axis, x, y, z) {
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
-    shapes.push({shape: mesh, axis: axis});
+    shapes.push({ shape: mesh, axis: axis });
 }
 
 function addCylinder(obj, size, axis, x, y, z) {
@@ -266,7 +395,7 @@ function addCylinder(obj, size, axis, x, y, z) {
         const z = v * size;
 
         vector.set(y, z, x);
-   }
+    };
 
     geometry = new ParametricGeometry(equation, 25, 25);
 
@@ -274,7 +403,7 @@ function addCylinder(obj, size, axis, x, y, z) {
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
-    shapes.push({shape: mesh, axis: axis});
+    shapes.push({ shape: mesh, axis: axis });
 }
 
 function addCone(obj, size, axis, x, y, z) {
@@ -282,12 +411,12 @@ function addCone(obj, size, axis, x, y, z) {
     const equation = (u, v, vector) => {
         const theta = u * 2 * Math.PI;
 
-        const x = v * size * Math.cos(theta) / 2;
-        const y = v * size * Math.sin(theta) / 2;
+        const x = (v * size * Math.cos(theta)) / 2;
+        const y = (v * size * Math.sin(theta)) / 2;
         const z = v * size;
 
         vector.set(y, z, x);
-   }
+    };
 
     geometry = new ParametricGeometry(equation, 25, 25);
 
@@ -295,7 +424,7 @@ function addCone(obj, size, axis, x, y, z) {
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
-    shapes.push({shape: mesh, axis: axis});
+    shapes.push({ shape: mesh, axis: axis });
 }
 
 function addCylinderCone(obj, size, axis, x, y, z) {
@@ -305,10 +434,10 @@ function addCylinderCone(obj, size, axis, x, y, z) {
 
         const x = (v * size + 1) * Math.cos(theta);
         const y = (v * size + 1) * Math.sin(theta);
-        const z = v * size / 2;
+        const z = (v * size) / 2;
 
         vector.set(y, z, x);
-   }
+    };
 
     geometry = new ParametricGeometry(equation, 25, 25);
 
@@ -316,7 +445,7 @@ function addCylinderCone(obj, size, axis, x, y, z) {
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
-    shapes.push({shape: mesh, axis: axis});
+    shapes.push({ shape: mesh, axis: axis });
 }
 
 function addRoundCone(obj, size, axis, x, y, z) {
@@ -324,12 +453,12 @@ function addRoundCone(obj, size, axis, x, y, z) {
     const equation = (u, v, vector) => {
         const theta = u * 2 * Math.PI;
 
-        const x = v * size * Math.cos(theta) / 2;
-        const y = v * size * Math.sin(theta) / 2;
-        const z = ((v * size) ** 2) / 2;
+        const x = (v * size * Math.cos(theta)) / 2;
+        const y = (v * size * Math.sin(theta)) / 2;
+        const z = (v * size) ** 2 / 2;
 
         vector.set(y, z, x);
-   }
+    };
 
     geometry = new ParametricGeometry(equation, 25, 25);
 
@@ -337,7 +466,7 @@ function addRoundCone(obj, size, axis, x, y, z) {
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
-    shapes.push({shape: mesh, axis: axis});
+    shapes.push({ shape: mesh, axis: axis });
 }
 
 function addHyperbolicParaboloid(obj, size, axis, x, y, z) {
@@ -345,10 +474,10 @@ function addHyperbolicParaboloid(obj, size, axis, x, y, z) {
     const equation = (u, v, vector) => {
         const x = size * (u - 0.5);
         const y = size * (v - 0.5);
-        const z = size * (x * x - y * y) / 4;
+        const z = (size * (x * x - y * y)) / 4;
 
         vector.set(y, z, x);
-   }
+    };
 
     geometry = new ParametricGeometry(equation, 25, 25);
 
@@ -356,7 +485,7 @@ function addHyperbolicParaboloid(obj, size, axis, x, y, z) {
 
     mesh.position.set(x, y, z);
     obj.add(mesh);
-    shapes.push({shape: mesh, axis: axis});
+    shapes.push({ shape: mesh, axis: axis });
 }
 
 function createRing(i, coordinates, innerRadius, outterRadius, material) {
@@ -366,21 +495,11 @@ function createRing(i, coordinates, innerRadius, outterRadius, material) {
 
     const innerCircle = new THREE.Path();
     innerCircle.moveTo(0, 0);
-    innerCircle.ellipse(
-        0, 0,
-        innerRadius,
-        innerRadius,
-        0, Math.PI * 2,
-    );
+    innerCircle.ellipse(0, 0, innerRadius, innerRadius, 0, Math.PI * 2);
 
     const ring = new THREE.Shape();
     ring.moveTo(0, 0);
-    ring.ellipse(
-        0, 0,
-        outterRadius,
-        outterRadius,
-        0, Math.PI * 2,
-    );
+    ring.ellipse(0, 0, outterRadius, outterRadius, 0, Math.PI * 2);
     ring.holes = [innerCircle];
 
     const extrudeSettings = {
@@ -399,8 +518,8 @@ function createRing(i, coordinates, innerRadius, outterRadius, material) {
 ////////////
 /* UPDATE */
 ////////////
-function update(){
-    'use strict';
+function update() {
+    "use strict";
     const delta = clock.getDelta();
 
     for (let i = 0; i < rings.length; i++) {
@@ -410,7 +529,10 @@ function update(){
 
         rings[i].position.y = ringHeights[i];
 
-        if (ringHeights[i] == MIN_RING_HEIGHT || ringHeights[i] == MAX_RING_HEIGHT) {
+        if (
+            ringHeights[i] == MIN_RING_HEIGHT ||
+            ringHeights[i] == MAX_RING_HEIGHT
+        ) {
             ringSpeeds[i] = -ringSpeeds[i];
         }
     }
@@ -444,7 +566,7 @@ function setMaterials(material) {
 /* DISPLAY */
 /////////////
 function render() {
-    'use strict';
+    "use strict";
     renderer.render(scene, camera);
 }
 
@@ -452,7 +574,7 @@ function render() {
 /* INITIALIZE ANIMATION CYCLE */
 ////////////////////////////////
 function init() {
-    'use strict';
+    "use strict";
     renderer = new THREE.WebGLRenderer({
         antialias: true,
     });
@@ -485,14 +607,21 @@ function init() {
 function bindEvents() {
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("resize", onResize);
 }
 
 ////////////////////////////
 /* RESIZE WINDOW CALLBACK */
 ////////////////////////////
 function onResize() {
-    'use strict';
+    "use strict";
 
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    if (window.innerHeight > 0 && window.innerWidth > 0) {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    }
 }
 
 ///////////////////////
@@ -505,27 +634,27 @@ function onKeyDown(e) {
     if (isFinite(e.key)) {
         try {
             ringSpeeds[e.key - 1] = ringSpeeds[e.key - 1] ? 0 : 20;
-        } catch(error) {}
+        } catch (error) {}
     } else {
-        switch(e.key) {
-            case 'd':
+        switch (e.key) {
+            case "d":
                 directionalLight.visible = !directionalLight.visible;
                 break;
-            case 'q':
+            case "q":
                 setMaterials(LAMBERT);
                 break;
-            case 'w':
+            case "w":
                 setMaterials(PHONG);
                 break;
-            case 'e':
+            case "e":
                 console.log(TOON.grey);
                 setMaterials(TOON);
                 break;
-            case 'r':
+            case "r":
                 console.log(NORMAL.grey);
                 setMaterials(NORMAL);
                 break;
-            case 't':
+            case "t":
                 // TODO
                 break;
             default:
