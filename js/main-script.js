@@ -11,6 +11,7 @@ let scene, renderer, camera
 let directionalLight, ambientLight;
 let mesh, geometry;
 
+let mobStrip;
 let carousel, carouselAngle;
 let rings, ringHeights, ringSpeeds;
 let shapes, shapesAngle;
@@ -24,6 +25,7 @@ const MATERIALS = {
     lightOrange: new THREE.MeshLambertMaterial({ color: 0xfcc100 }),
     lightBlue: new THREE.MeshLambertMaterial({ color: 0x85e6fc }),
     red: new THREE.MeshLambertMaterial({ color: 0xa52a2a }),
+    mobiusColor: new THREE.MeshLambertMaterial({ color: 0xff0000 , side: THREE.DoubleSide }),
     skyDome: new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide }),
 };
 
@@ -112,6 +114,8 @@ function createCarousel() {
 
     const startingPoint = [0, DIMENSIONS.hRing / 2, 0];
 
+    createMobiusStrip(carousel, -2, DIMENSIONS.hBase + 3.5, -0.5);
+    
     createRing(0, startingPoint, DIMENSIONS.rBase, DIMENSIONS.rInnerRing, MATERIALS.grey);
     addShapes(rings[0], 1, X_AXIS, DIMENSIONS.rBase, DIMENSIONS.rInnerRing);
     carousel.add(rings[0]);
@@ -138,6 +142,66 @@ function addBase(obj, x, y, z) {
     mesh = new THREE.Mesh(geometry, MATERIALS.lightOrange);
 
     mesh.position.set(x, y, z);
+    obj.add(mesh);
+}
+
+function createMobiusStrip(obj, x, y, z) {
+    "use strict";
+    mobStrip = new THREE.Object3D();
+    mobStrip.add(new THREE.AxesHelper(10));
+    
+        geometry = new THREE.BufferGeometry();
+        let vertices = new Float32Array([
+            -1,0,1,          // 0
+            -1,-2,1,        // 1    
+            0.5,0,2.5,          // 2
+            1,-2,3,         // 3    
+            3,-0.5,2.5,          // 4
+            4,-2,2,          // 5
+            4,-1,2,          // 6
+            5,-2,0,          // 7
+            4,-2,-1,          // 8
+            3,-2,-0.5,          // 9
+            3,-2,-2,          // 10
+            1,-2,-1,          // 11
+            2,-1,-2.5,          // 12
+            0,0,-1,          // 13
+            -1,-2,0,          // 14
+    ]);
+
+    const indices = [
+        0,1,2,
+        1,2,3,
+        2,3,4,
+        3,4,5,
+        4,5,6,
+        5,6,7,
+        6,7,8,
+        7,8,9,
+        6,7,9,
+        8,9,10,
+        9,10,11,
+        10,11,12,
+        11,12,13,
+        11,13,14,
+        0,1,14,
+        0,13,14,
+    ];
+
+    geometry.setIndex(indices);
+    geometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(vertices, 3),
+    );
+
+    geometry.computeVertexNormals();
+    
+    //geometry = new ParametricGeometry( ParametricGeometries.mobius, 1, 10 );
+    console.log(geometry.attributes.position);
+    mesh = new THREE.Mesh(geometry, MATERIALS.mobiusColor);
+    mesh.position.set(x, y, z);
+    mesh.scale.multiplyScalar(1.5);
+
     obj.add(mesh);
 }
 
