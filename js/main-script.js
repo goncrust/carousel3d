@@ -193,6 +193,7 @@ const Y_AXIS = new THREE.Vector3(0, 1, 0);
 const Z_AXIS = new THREE.Vector3(0, 0, 1);
 
 const CAROUSEL_SPEED = 1;
+const RINGS_SPEED = 20;
 const SHAPES_SPEED = 3;
 
 /////////////////////
@@ -209,7 +210,7 @@ function createScene() {
     addLights();
     setMaterials(LAMBERT);
 
-    group.position.set(8, -5, 0);
+    group.position.set(10, -DIMENSIONS.hBase - 5, 10);
     scene.add(group);
 }
 
@@ -223,8 +224,8 @@ function addCamera() {
         1,
         1000,
     );
-    camera.position.set(45, 40, 45);
-    camera.lookAt(0, 15, 0);
+    camera.position.set(45 + 10, 40 - 5 - DIMENSIONS.hBase, 45 + 10);
+    camera.lookAt(10, 15 - 5 - DIMENSIONS.hBase, 10);
 }
 
 /////////////////////
@@ -305,7 +306,7 @@ function createCarousel() {
     "use strict";
     rings = Array(3);
     ringHeights = Array(3).fill(0);
-    ringSpeeds = Array(3).fill(0);
+    ringSpeeds = Array(3).fill(RINGS_SPEED);
     shapes = [];
     shapesAngle = 0;
     carouselAngle = 0;
@@ -857,7 +858,7 @@ function onKeyDown(e) {
 
     if (isFinite(e.key)) {
         try {
-            ringSpeeds[e.key - 1] = ringSpeeds[e.key - 1] ? 0 : 20;
+            ringSpeeds[e.key - 1] = ringSpeeds[e.key - 1] ? 0 : RINGS_SPEED;
         } catch (error) {}
     } else {
         switch (e.key) {
