@@ -199,7 +199,7 @@ function addLights() {
     directionalLight.position.z = 5;
     scene.add(directionalLight);
 
-    ambientLight = new THREE.AmbientLight(0xfcb73f);
+    ambientLight = new THREE.AmbientLight(0xfcb73f, 0.3);
     scene.add(ambientLight);
 }
 
@@ -695,28 +695,35 @@ function onKeyDown(e) {
         } catch (error) {}
     } else {
         switch (e.key) {
+            case "D":
             case "d":
                 directionalLight.visible = !directionalLight.visible;
                 break;
+            case "S":
             case "s":
                 for (let i = 0; i < spotLights.length; i++) {
                     spotLights[i].visible = !spotLights[i].visible;
                 }
                 break;
+            case "Q":
             case "q":
                 setMaterials(LAMBERT);
                 break;
+            case "W":
             case "w":
                 setMaterials(PHONG);
                 break;
+            case "E":
             case "e":
                 console.log(TOON.grey);
                 setMaterials(TOON);
                 break;
+            case "R":
             case "r":
                 console.log(NORMAL.grey);
                 setMaterials(NORMAL);
                 break;
+            case "T":
             case "t":
                 // TODO
                 break;
