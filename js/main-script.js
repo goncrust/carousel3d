@@ -16,6 +16,7 @@ let directionalLight,
     pointLights = [];
 let mesh, geometry;
 
+let previousMaterial, currentMaterial;
 let mobStrip;
 let skyDome;
 let carousel, carouselAngle;
@@ -776,6 +777,9 @@ function update() {
 }
 
 function setMaterials(material) {
+    previousMaterial = currentMaterial;
+    currentMaterial = material;
+
     skyDome.material = material.skyDome;
     carousel.children[0].material = material.lightOrange;
     rings[0].children[0].material = material.grey;
@@ -900,7 +904,11 @@ function onKeyDown(e) {
                 break;
             case "T":
             case "t":
-                setMaterials(BASIC);
+                if (currentMaterial == BASIC) {
+                    setMaterials(previousMaterial);
+                } else {
+                    setMaterials(BASIC);
+                }
                 break;
             default:
                 break;
