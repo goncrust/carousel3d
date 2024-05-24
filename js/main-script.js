@@ -213,6 +213,8 @@ function createScene() {
 /* CREATE CAMERA(S) */
 //////////////////////
 function addCamera() {
+    let user = new THREE.Group();
+    user.position.set(0, 0, 0);
     camera = new THREE.PerspectiveCamera(
         70,
         window.innerWidth / window.innerHeight,
@@ -221,6 +223,8 @@ function addCamera() {
     );
     camera.position.set(45, 40, 45);
     camera.lookAt(0, 15, 0);
+    user.add(camera);
+    scene.add(user);
 }
 
 /////////////////////
