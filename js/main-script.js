@@ -182,6 +182,7 @@ function addCamera() {
 function addSpotLight(x, y, z, ring, obj) {
     let spotLight = new THREE.SpotLight(0xffffff, 50);
     spotLight.position.set(x, y, z);
+    spotLight.distance = 15;
     spotLight.target = obj;
     ring.add(spotLight);
     spotLights.push(spotLight);
