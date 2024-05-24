@@ -270,7 +270,7 @@ function createCarousel() {
 
     const startingPoint = [0, DIMENSIONS.hRing / 2, 0];
 
-    createMobiusStrip(carousel, -2, DIMENSIONS.hBase + 3.5, -0.5);
+    createMobiusStrip(carousel, -2, DIMENSIONS.hBase + 5, -0.5);
 
     createRing(
         0,
@@ -333,26 +333,24 @@ function addBase(obj, x, y, z) {
 
 function createMobiusStrip(obj, x, y, z) {
     "use strict";
-    mobStrip = new THREE.Object3D();
-    mobStrip.add(new THREE.AxesHelper(10));
     
-        geometry = new THREE.BufferGeometry();
-        let vertices = new Float32Array([
-            -1,0,1,          // 0
-            -1,-2,1,        // 1    
-            0.5,0,2.5,          // 2
-            1,-2,3,         // 3    
-            3,-0.5,2.5,          // 4
-            4,-2,2,          // 5
-            4,-1,2,          // 6
-            5,-2,0,          // 7
-            4,-2,-1,          // 8
-            3,-2,-0.5,          // 9
-            3,-2,-2,          // 10
-            1,-2,-1,          // 11
-            2,-1,-2.5,          // 12
-            0,0,-1,          // 13
-            -1,-2,0,          // 14
+    geometry = new THREE.BufferGeometry();
+    let vertices = new Float32Array([
+        -1,0,1,          // 0
+        -1,-2,1,        // 1    
+        0.5,0,2.5,      // 2
+        1,-2,3,         // 3    
+        3,-0.5,2.5,     // 4
+        4,-2,2,         // 5
+        4,-1,2,         // 6
+        5,-2,0,         // 7
+        4,-2,-1,        // 8
+        3,-2,-0.5,      // 9
+        3,-2,-2,        // 10
+        1,-2,-1,        // 11
+        2,-1,-2.5,      // 12
+        0,0,-1,         // 13
+        -1,-2,0,        // 14
     ]);
 
     const indices = [
@@ -382,13 +380,11 @@ function createMobiusStrip(obj, x, y, z) {
 
     geometry.computeVertexNormals();
     
-    //geometry = new ParametricGeometry( ParametricGeometries.mobius, 1, 10 );
-    console.log(geometry.attributes.position);
-    mesh = new THREE.Mesh(geometry, MATERIALS.mobiusColor);
-    mesh.position.set(x, y, z);
-    mesh.scale.multiplyScalar(1.5);
+    mobStrip = new THREE.Mesh(geometry, LAMBERT.mobiusColor);
+    mobStrip.position.set(x, y, z);
+    mobStrip.scale.multiplyScalar(1.2);
 
-    obj.add(mesh);
+    obj.add(mobStrip);
 }
 
 function addShapes(obj, size, axis, innerRadius, outterRadius) {
@@ -718,6 +714,7 @@ function setMaterials(material) {
     rings[0].children[0].material = material.grey;
     rings[1].children[0].material = material.lightBlue;
     rings[2].children[0].material = material.red;
+    mobStrip.material = material.mobiusColor;
 
     material.darkOrange.side = THREE.DoubleSide;
     for (let i = 1; i < rings[0].children.length; i++) {
