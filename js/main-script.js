@@ -158,7 +158,6 @@ function createScene() {
     addLights();
     createSkyDome();
     createCarousel();
-    LAMBERT.darkOrange.side = THREE.DoubleSide;
     setMaterials(LAMBERT);
 }
 
@@ -608,6 +607,7 @@ function setMaterials(material) {
     rings[1].children[0].material = material.lightBlue;
     rings[2].children[0].material = material.red;
 
+    material.darkOrange.side = THREE.DoubleSide;
     for (let i = 1; i < rings[0].children.length; i++) {
         rings[0].children[i].material = material.darkOrange;
         rings[1].children[i].material = material.darkOrange;
