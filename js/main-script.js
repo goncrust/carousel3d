@@ -52,10 +52,9 @@ const BASIC = {
     }),
     mobiusColor: new THREE.MeshBasicMaterial({
         color: 0xff0000,
-        side: THREE.DoubleSide 
+        side: THREE.DoubleSide
     }),
 };
-
 
 const LAMBERT = {
     grey: new THREE.MeshLambertMaterial({
@@ -84,7 +83,7 @@ const LAMBERT = {
     }),
     mobiusColor: new THREE.MeshLambertMaterial({
         color: 0xff0000,
-        side: THREE.DoubleSide 
+        side: THREE.DoubleSide
     }),
 };
 
@@ -115,7 +114,7 @@ const PHONG = {
     }),
     mobiusColor: new THREE.MeshPhongMaterial({
         color: 0xff0000,
-        side: THREE.DoubleSide 
+        side: THREE.DoubleSide
     }),
 };
 
@@ -146,7 +145,7 @@ const TOON = {
     }),
     mobiusColor: new THREE.MeshToonMaterial({
         color: 0xff0000,
-        side: THREE.DoubleSide 
+        side: THREE.DoubleSide
     }),
 };
 
@@ -170,8 +169,7 @@ const NORMAL = {
         side: THREE.BackSide,
     }),
     mobiusColor: new THREE.MeshNormalMaterial({
-        color: 0xff0000,
-        side: THREE.DoubleSide 
+        side: THREE.DoubleSide
     }),
 };
 
@@ -333,13 +331,13 @@ function addBase(obj, x, y, z) {
 
 function createMobiusStrip(obj, x, y, z) {
     "use strict";
-    
+
     geometry = new THREE.BufferGeometry();
     let vertices = new Float32Array([
         -1,0,1,          // 0
-        -1,-2,1,        // 1    
+        -1,-2,1,        // 1
         0.5,0,2.5,      // 2
-        1,-2,3,         // 3    
+        1,-2,3,         // 3
         3,-0.5,2.5,     // 4
         4,-2,2,         // 5
         4,-1,2,         // 6
@@ -379,7 +377,7 @@ function createMobiusStrip(obj, x, y, z) {
     );
 
     geometry.computeVertexNormals();
-    
+
     mobStrip = new THREE.Mesh(geometry, LAMBERT.mobiusColor);
     mobStrip.position.set(x, y, z);
     mobStrip.scale.multiplyScalar(1.2);
