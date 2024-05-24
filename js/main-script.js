@@ -240,35 +240,35 @@ function addPointLights() {
     const radius = DIMENSIONS.rBase / 2;
 
     const pointLightCoords = [
-        new THREE.Vector3(0, DIMENSIONS.hBase, radius),
-        new THREE.Vector3(radius, DIMENSIONS.hBase, 0),
-        new THREE.Vector3(0, DIMENSIONS.hBase, -radius),
-        new THREE.Vector3(-radius, DIMENSIONS.hBase, 0),
+        new THREE.Vector3(0, DIMENSIONS.hBase + 0.5, radius),
+        new THREE.Vector3(radius, DIMENSIONS.hBase + 0.5, 0),
+        new THREE.Vector3(0, DIMENSIONS.hBase + 0.5, -radius),
+        new THREE.Vector3(-radius, DIMENSIONS.hBase + 0.5, 0),
         new THREE.Vector3(
             radius * Math.sin(Math.PI / 4),
-            DIMENSIONS.hBase,
+            DIMENSIONS.hBase + 0.5,
             radius * Math.cos(Math.PI / 4),
         ),
         new THREE.Vector3(
             -1 * radius * Math.sin(Math.PI / 4),
-            DIMENSIONS.hBase,
+            DIMENSIONS.hBase + 0.5,
             radius * Math.cos(Math.PI / 4),
         ),
         new THREE.Vector3(
             -1 * radius * Math.sin(Math.PI / 4),
-            DIMENSIONS.hBase,
+            DIMENSIONS.hBase + 0.5,
             -1 * radius * Math.cos(Math.PI / 4),
         ),
         new THREE.Vector3(
             radius * Math.sin(Math.PI / 4),
-            DIMENSIONS.hBase,
+            DIMENSIONS.hBase + 0.5,
             -1 * radius * Math.cos(Math.PI / 4),
         ),
     ];
 
     for (let i = 0; i < pointLightCoords.length; i++) {
         console.log(pointLightCoords[i]);
-        let pointLight = new THREE.PointLight(0xffffff, 10);
+        let pointLight = new THREE.PointLight(0xffffff, 1);
         pointLight.position.set(...pointLightCoords[i]);
         pointLight.distance = 15;
         carousel.add(pointLight);
