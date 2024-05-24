@@ -10,7 +10,9 @@ import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 /* GLOBAL VARIABLES */
 //////////////////////
 let scene, renderer, camera;
-let directionalLight, ambientLight;
+let directionalLight,
+    ambientLight,
+    spotLights = [];
 let mesh, geometry;
 
 let skyDome;
@@ -175,13 +177,22 @@ function addCamera() {
         1,
         1000,
     );
-    camera.position.set(60, 60, 60);
-    camera.lookAt(0, 25, 0);
+    camera.position.set(45, 40, 45);
+    camera.lookAt(0, 15, 0);
 }
 
 /////////////////////
 /* CREATE LIGHT(S) */
 /////////////////////
+
+function addSpotLight(x, y, z, ring, obj) {
+    let spotLight = new THREE.SpotLight(0xffffff, 50);
+    spotLight.position.set(x, y, z);
+    spotLight.target = obj;
+    ring.add(spotLight);
+    spotLights.push(spotLight);
+}
+
 function addLights() {
     directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.x = 5;
@@ -196,7 +207,7 @@ function addLights() {
 /* CREATE OBJECT3D(S) */
 ////////////////////////
 function createSkyDome() {
-    geometry = new THREE.SphereGeometry(70);
+    geometry = new THREE.SphereGeometry(53);
     skyDome = new THREE.Mesh(geometry, LAMBERT.skyDome);
     scene.add(skyDome);
 }
@@ -278,9 +289,13 @@ function addShapes(obj, size, axis, innerRadius, outterRadius) {
     "use strict";
     const midRing = (outterRadius - innerRadius) / 2 + innerRadius;
 
-    addTorus(obj, size, axis, 0, size * 2, midRing);
-    addSphere(obj, size, axis, midRing, size * 2, 0);
-    addEllipsoid(
+    let torus = addTorus(obj, size, axis, 0, size * 2, midRing);
+    addSpotLight(0, 0, midRing, obj, torus);
+
+    let sphere = addSphere(obj, size, axis, midRing, size * 2, 0);
+    addSpotLight(midRing, 0, 0, obj, sphere);
+
+    let ellipsoid = addEllipsoid(
         obj,
         size,
         axis,
@@ -288,7 +303,15 @@ function addShapes(obj, size, axis, innerRadius, outterRadius) {
         size * 2,
         midRing * Math.cos(Math.PI / 4),
     );
-    addCylinder(
+    addSpotLight(
+        midRing * Math.sin(Math.PI / 4),
+        0,
+        midRing * Math.cos(Math.PI / 4),
+        obj,
+        ellipsoid,
+    );
+
+    let cylinder = addCylinder(
         obj,
         size,
         axis,
@@ -296,7 +319,15 @@ function addShapes(obj, size, axis, innerRadius, outterRadius) {
         size * 2,
         midRing * Math.cos(Math.PI / 4),
     );
-    addRoundCone(
+    addSpotLight(
+        -1 * midRing * Math.sin(Math.PI / 4),
+        0,
+        midRing * Math.cos(Math.PI / 4),
+        obj,
+        cylinder,
+    );
+
+    let roundCone = addRoundCone(
         obj,
         size,
         axis,
@@ -304,7 +335,15 @@ function addShapes(obj, size, axis, innerRadius, outterRadius) {
         size * 2,
         -1 * midRing * Math.cos(Math.PI / 4),
     );
-    addHyperbolicParaboloid(
+    addSpotLight(
+        -1 * midRing * Math.sin(Math.PI / 4),
+        0,
+        -1 * midRing * Math.cos(Math.PI / 4),
+        obj,
+        roundCone,
+    );
+
+    let hyperbolicParaboloid = addHyperbolicParaboloid(
         obj,
         size,
         axis,
@@ -312,8 +351,19 @@ function addShapes(obj, size, axis, innerRadius, outterRadius) {
         size * 2,
         -1 * midRing * Math.cos(Math.PI / 4),
     );
-    addCone(obj, size, axis, -midRing, size * 2, 0);
-    addCylinderCone(obj, size, axis, 0, size * 2, -midRing);
+    addSpotLight(
+        midRing * Math.sin(Math.PI / 4),
+        0,
+        -1 * midRing * Math.cos(Math.PI / 4),
+        obj,
+        hyperbolicParaboloid,
+    );
+
+    let cone = addCone(obj, size, axis, -midRing, size * 2, 0);
+    addSpotLight(-midRing, 0, 0, obj, cone);
+
+    let cylinderCone = addCylinderCone(obj, size, axis, 0, size * 2, -midRing);
+    addSpotLight(0, 0, -midRing, obj, cylinderCone);
 }
 
 function addTorus(obj, size, axis, x, y, z) {
@@ -339,6 +389,7 @@ function addTorus(obj, size, axis, x, y, z) {
     mesh.material.side = THREE.BackSide;
     obj.add(mesh);
     shapes.push({ shape: mesh, axis: axis });
+    return mesh;
 }
 
 function addSphere(obj, size, axis, x, y, z) {
@@ -361,6 +412,7 @@ function addSphere(obj, size, axis, x, y, z) {
     mesh.position.set(x, y, z);
     obj.add(mesh);
     shapes.push({ shape: mesh, axis: axis });
+    return mesh;
 }
 
 function addEllipsoid(obj, size, axis, x, y, z) {
@@ -383,6 +435,7 @@ function addEllipsoid(obj, size, axis, x, y, z) {
     mesh.position.set(x, y, z);
     obj.add(mesh);
     shapes.push({ shape: mesh, axis: axis });
+    return mesh;
 }
 
 function addCylinder(obj, size, axis, x, y, z) {
@@ -404,6 +457,7 @@ function addCylinder(obj, size, axis, x, y, z) {
     mesh.position.set(x, y, z);
     obj.add(mesh);
     shapes.push({ shape: mesh, axis: axis });
+    return mesh;
 }
 
 function addCone(obj, size, axis, x, y, z) {
@@ -425,6 +479,7 @@ function addCone(obj, size, axis, x, y, z) {
     mesh.position.set(x, y, z);
     obj.add(mesh);
     shapes.push({ shape: mesh, axis: axis });
+    return mesh;
 }
 
 function addCylinderCone(obj, size, axis, x, y, z) {
@@ -446,6 +501,7 @@ function addCylinderCone(obj, size, axis, x, y, z) {
     mesh.position.set(x, y, z);
     obj.add(mesh);
     shapes.push({ shape: mesh, axis: axis });
+    return mesh;
 }
 
 function addRoundCone(obj, size, axis, x, y, z) {
@@ -467,6 +523,7 @@ function addRoundCone(obj, size, axis, x, y, z) {
     mesh.position.set(x, y, z);
     obj.add(mesh);
     shapes.push({ shape: mesh, axis: axis });
+    return mesh;
 }
 
 function addHyperbolicParaboloid(obj, size, axis, x, y, z) {
@@ -486,6 +543,7 @@ function addHyperbolicParaboloid(obj, size, axis, x, y, z) {
     mesh.position.set(x, y, z);
     obj.add(mesh);
     shapes.push({ shape: mesh, axis: axis });
+    return mesh;
 }
 
 function createRing(i, coordinates, innerRadius, outterRadius, material) {
@@ -639,6 +697,11 @@ function onKeyDown(e) {
         switch (e.key) {
             case "d":
                 directionalLight.visible = !directionalLight.visible;
+                break;
+            case "s":
+                for (let i = 0; i < spotLights.length; i++) {
+                    spotLights[i].visible = !spotLights[i].visible;
+                }
                 break;
             case "q":
                 setMaterials(LAMBERT);
