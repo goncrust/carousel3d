@@ -9,7 +9,7 @@ import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 //////////////////////
 /* GLOBAL VARIABLES */
 //////////////////////
-let scene, renderer, camera;
+let scene, group, renderer, camera;
 let directionalLight,
     ambientLight,
     spotLights = [],
@@ -201,20 +201,22 @@ const SHAPES_SPEED = 3;
 function createScene() {
     "use strict";
     scene = new THREE.Scene();
+    group = new THREE.Group();
 
     addCamera();
     createSkyDome();
     createCarousel();
     addLights();
     setMaterials(LAMBERT);
+
+    group.position.set(8, -5, 0);
+    scene.add(group);
 }
 
 //////////////////////
 /* CREATE CAMERA(S) */
 //////////////////////
 function addCamera() {
-    let user = new THREE.Group();
-    user.position.set(0, 0, 0);
     camera = new THREE.PerspectiveCamera(
         70,
         window.innerWidth / window.innerHeight,
@@ -223,8 +225,6 @@ function addCamera() {
     );
     camera.position.set(45, 40, 45);
     camera.lookAt(0, 15, 0);
-    user.add(camera);
-    scene.add(user);
 }
 
 /////////////////////
@@ -284,10 +284,10 @@ function addLights() {
     directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.x = 5;
     directionalLight.position.z = 5;
-    scene.add(directionalLight);
+    group.add(directionalLight);
 
     ambientLight = new THREE.AmbientLight(0xfcb73f, 0.2);
-    scene.add(ambientLight);
+    group.add(ambientLight);
 
     addPointLights();
 }
@@ -298,7 +298,7 @@ function addLights() {
 function createSkyDome() {
     geometry = new THREE.SphereGeometry(53);
     skyDome = new THREE.Mesh(geometry, LAMBERT.skyDome);
-    scene.add(skyDome);
+    group.add(skyDome);
 }
 
 function createCarousel() {
@@ -359,7 +359,7 @@ function createCarousel() {
     );
     carousel.add(rings[2]);
 
-    scene.add(carousel);
+    group.add(carousel);
 }
 
 function addBase(obj, x, y, z) {
