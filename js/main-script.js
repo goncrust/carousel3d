@@ -24,7 +24,6 @@ const loader = new THREE.TextureLoader();
 const texture = loader.load("textures/AnOpticalPoem.png");
 texture.colorSpace = THREE.LinearSRGBColorSpace;
 
-// TODO Weird shapes (maybe its the lighting)
 const LAMBERT = {
     grey: new THREE.MeshLambertMaterial({
         color: 0x727272,
@@ -108,27 +107,21 @@ const TOON = {
 
 const NORMAL = {
     grey: new THREE.MeshNormalMaterial({
-        color: 0x727272,
         side: THREE.DoubleSide,
     }),
     darkOrange: new THREE.MeshNormalMaterial({
-        color: 0xfc6d00,
         side: THREE.DoubleSide,
     }),
     lightOrange: new THREE.MeshNormalMaterial({
-        color: 0xfcc100,
         side: THREE.DoubleSide,
     }),
     lightBlue: new THREE.MeshNormalMaterial({
-        color: 0x85e6fc,
         side: THREE.DoubleSide,
     }),
     red: new THREE.MeshNormalMaterial({
-        color: 0xa52a2a,
         side: THREE.DoubleSide,
     }),
     skyDome: new THREE.MeshNormalMaterial({
-        normalMap: texture,
         side: THREE.BackSide,
     }),
 };
@@ -165,6 +158,8 @@ function createScene() {
     addLights();
     createSkyDome();
     createCarousel();
+    LAMBERT.darkOrange.side = THREE.DoubleSide;
+    setMaterials(LAMBERT);
 }
 
 //////////////////////
@@ -715,12 +710,10 @@ function onKeyDown(e) {
                 break;
             case "E":
             case "e":
-                console.log(TOON.grey);
                 setMaterials(TOON);
                 break;
             case "R":
             case "r":
-                console.log(NORMAL.grey);
                 setMaterials(NORMAL);
                 break;
             case "T":
